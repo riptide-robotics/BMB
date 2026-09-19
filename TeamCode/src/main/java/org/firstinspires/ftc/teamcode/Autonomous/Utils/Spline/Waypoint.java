@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 
-import Pose2D;
-
 public class Waypoint extends EditablePose2D {
     /** This is the Waypoint class used for C1 Uniform Cubic Hermite Splines.
      *
@@ -14,11 +12,26 @@ public class Waypoint extends EditablePose2D {
      * @param
      *
     */
-    private double goalVelocity; // from 0 to 1
+    private double goalSpeed; // from 0 to 1
     private double velocityVectorx; //the velocity vector
 
     public Waypoint() {
         super(0, 0, Math.toRadians(90), DistanceUnit.CM);
-        goalVelocity
+        goalSpeed = -1;
+    }
+
+    public Waypoint(double x, double y, double h) {
+        super(x, y, Math.toRadians(h), DistanceUnit.CM);
+        goalSpeed = -1;
+    }
+
+    public Waypoint(double x, double y, double h, double goalSpeed) {
+        super(x, y, Math.toRadians(h), DistanceUnit.CM);
+        this.goalSpeed = goalSpeed;
+    }
+
+    public Waypoint(double x, double y, double h, double goalSpeed, DistanceUnit units) {
+        super(x, y, Math.toRadians(90), units);
+        this.goalSpeed = goalSpeed;
     }
 }
