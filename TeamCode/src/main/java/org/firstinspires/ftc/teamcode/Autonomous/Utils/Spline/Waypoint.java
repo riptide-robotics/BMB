@@ -23,25 +23,32 @@ public class Waypoint extends EditablePose2D {
         goalSpeed = -1;
     }
 
-    public Waypoint(double x, double y, double h) {
-        super(x, y, Math.toRadians(h), DistanceUnit.CM);
-        velocityVectorX = 0;
-        velocityVectorY = 0;
-        goalSpeed = -1;
-    }
+//    public Waypoint(double x, double y, double h) {
+//        super(x, y, Math.toRadians(h), DistanceUnit.CM);
+//        velocityVectorX = 0;
+//        velocityVectorY = 0;
+//        goalSpeed = -1;
+//    }
+//
+//    public Waypoint(double x, double y, double h, double velocityX, double velocityY) {
+//        super(x, y, Math.toRadians(h), DistanceUnit.CM);
+//        velocityVectorX = velocityX;
+//        velocityVectorY = velocityY;
+//        goalSpeed = -1;
+//    }
 
-    public Waypoint(double x, double y, double h, double velocityX, double velocityY) {
-        super(x, y, Math.toRadians(h), DistanceUnit.CM);
+    public Waypoint(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
         velocityVectorX = velocityX;
         velocityVectorY = velocityY;
-        goalSpeed = -1;
+        this.goalSpeed = goalSpeed;
     }
 
     public Waypoint(double x, double y, double h, double velocityX, double velocityY, double goalSpeed) {
         super(x, y, Math.toRadians(h), DistanceUnit.CM);
-        this.goalSpeed = goalSpeed;
         velocityVectorX = velocityX;
         velocityVectorY = velocityY;
+        this.goalSpeed = goalSpeed;
     }
 
     public Waypoint(double x, double y, double h, double velocityX, double velocityY, double goalSpeed, DistanceUnit units) {

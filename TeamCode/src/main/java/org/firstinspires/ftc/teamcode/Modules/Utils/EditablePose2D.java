@@ -29,6 +29,9 @@ public class EditablePose2D {
     }
 
     public double getH() {
+        /**
+         * In radians.
+         */
         return this.h;
     }
 
