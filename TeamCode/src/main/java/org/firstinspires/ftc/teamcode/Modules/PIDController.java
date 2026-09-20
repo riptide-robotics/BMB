@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Modules;
 
+import static org.firstinspires.ftc.teamcode.riptideUtil.TUNED_VOLTAGE;
+
 // ----- READY TO TRANSFER ----- //
 // I don't think we will ever need to change this
 
@@ -11,7 +13,7 @@ public class PIDController {
     private double ki;
     private double kd;
     private double kf;
-    private double tunedVoltage = 11.5;
+    private double tunedVoltage = TUNED_VOLTAGE;
 
 
     private double pError;
