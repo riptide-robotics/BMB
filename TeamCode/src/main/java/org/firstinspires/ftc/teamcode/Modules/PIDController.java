@@ -3,11 +3,16 @@ package org.firstinspires.ftc.teamcode.Modules;
 // ----- READY TO TRANSFER ----- //
 // I don't think we will ever need to change this
 
+// NEED TO ADD TUNED VOLTAGE
+
 public class PIDController {
 
     private double kp;
     private double ki;
     private double kd;
+    private double kf;
+    private double tunedVoltage = 11.5;
+
 
     private double pError;
     private double dError;
@@ -32,11 +37,35 @@ public class PIDController {
     public PIDController(double kp, double ki, double kd){
         this(kp, ki, kd, false);
     }
+    public PIDController(double kp, double ki, double kd, double kf){
+        this(kp, ki, kd, kf, false);
+    }
+
+    public PIDController(double kp, double ki, double kd, double kf, double tunedVoltage){
+        this(kp, ki, kd, kf, tunedVoltage, false);
+    }
 
     public PIDController(double kp, double ki, double kd, boolean usingExternalClock){
         this.kd = kd;
         this.kp = kp;
         this.ki = ki;
+        this.usingExternalClock = usingExternalClock;
+    }
+
+    public PIDController(double kp, double ki, double kd, double kf, boolean usingExternalClock){
+        this.kd = kd;
+        this.kp = kp;
+        this.ki = ki;
+        this.kf = kf;
+        this.usingExternalClock = usingExternalClock;
+    }
+
+    public PIDController(double kp, double ki, double kd, double kf, double tunedVoltage, boolean usingExternalClock){
+        this.kd = kd;
+        this.kp = kp;
+        this.ki = ki;
+        this.kf = kf;
+        this.tunedVoltage = tunedVoltage;
         this.usingExternalClock = usingExternalClock;
     }
 
@@ -69,7 +98,7 @@ public class PIDController {
 
         previousError = pError;
 
-        return kp * pError + kd * dError + ki * iError;
+        return kf + kp * pError + kd * dError + ki * iError;
     }
 
     /**
@@ -99,7 +128,7 @@ public class PIDController {
         iError += elapsedTime * (pError);
         iError = Math.abs(iError) > integralCeil ? integralCeil : iError;
 
-        return kp * pError + kd * dError + ki * iError;
+        return kf + kp * pError + kd * dError + ki * iError;
     }
 
     public void reset(){
@@ -111,6 +140,13 @@ public class PIDController {
         this.kp = kP;
         this.ki = ki;
         this.kd = kd;
+    }
+
+    public void setPID(double kP, double ki, double kd, double kf) {
+        this.kp = kP;
+        this.ki = ki;
+        this.kd = kd;
+        this.kf = kf;
     }
 
     public void resetIntegral(){
