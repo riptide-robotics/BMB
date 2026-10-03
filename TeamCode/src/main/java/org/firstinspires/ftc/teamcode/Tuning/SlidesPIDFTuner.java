@@ -20,7 +20,10 @@ public class SlidesPIDFTuner extends LinearOpMode {
 
     public static double kp = 0.02;     // idfk
     public static double ki = 0.3;      // dude
-    public static double kd = 0.001;    // eff this sh1t
+    public static double kd = 0.001;
+    double prevKp;
+    double prevKi;
+    double prevKd;
     public static double kf = 0;        // /^\  T^T ToT T-T T_T TOT
 
     double currentPosition;
@@ -48,7 +51,13 @@ public class SlidesPIDFTuner extends LinearOpMode {
                 prevGoal = goal;
             }
 
-            slideController.setPID(kp, ki, kd);
+            if (ki != prevKi || kd != prevKd || kp != prevKp) {
+                prevKi = ki;
+                prevKp = kp;
+                prevKd = kd;
+                slideController.setPID(kp, ki, kd);
+            }
+
             currentPosition = robot.getSlides().getSlidePosition();
 
             robot.getSlides().setSlidePower(slideController.calculate(currentPosition, goal) + kf);
