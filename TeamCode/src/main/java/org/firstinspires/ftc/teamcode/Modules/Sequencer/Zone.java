@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Modules.Sequencer;
 
-import android.icu.util.MeasureUnit;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -68,29 +66,30 @@ public class Zone {
 
     public boolean botInZone() {
 
-        boolean within = false;
-        Pose2D robotpos = robot.getDrivetrain().getCurrPos();
-
-        double xb = robotpos.getX(DistanceUnit.INCH);
-        double yb = robotpos.getY(DistanceUnit.INCH);
-
-        for (int i = 0; i < pos.length; i++) {
-
-            Pose2D pos1 = pos[i];
-            Pose2D pos2 = pos[(i + 1) % pos.length];
-
-            double x1 = pos1.getX(DistanceUnit.INCH);
-            double y1 = pos1.getY(DistanceUnit.INCH);
-            double x2 = pos2.getX(DistanceUnit.INCH);
-            double y2 = pos2.getY(DistanceUnit.INCH);
-
-            // first section not technically necessary but good for optimization
-            if (y1 > yb != y2 > yb && (
-                    (xb < x1 && xb < x2)
-                    || xb < (x1 + ((yb-y1) / (y2-y1)) * (x2-x1)))) {
-                within = !within;
-            }
-        }
-        return within;
+//        boolean within = false;
+//        Pose2D robotpos = robot.getDrivetrain().getCurrPos();
+//
+//        double xb = robotpos.getX(DistanceUnit.INCH);
+//        double yb = robotpos.getY(DistanceUnit.INCH);
+//
+//        for (int i = 0; i < pos.length; i++) {
+//
+//            Pose2D pos1 = pos[i];
+//            Pose2D pos2 = pos[(i + 1) % pos.length];
+//
+//            double x1 = pos1.getX(DistanceUnit.INCH);
+//            double y1 = pos1.getY(DistanceUnit.INCH);
+//            double x2 = pos2.getX(DistanceUnit.INCH);
+//            double y2 = pos2.getY(DistanceUnit.INCH);
+//
+//            // first section not technically necessary but good for optimization
+//            if (y1 > yb != y2 > yb && (
+//                    (xb < x1 && xb < x2)
+//                    || xb < (x1 + ((yb-y1) / (y2-y1)) * (x2-x1)))) {
+//                within = !within;
+//            }
+//        }
+//        return within;
+        return false;
     }
 }

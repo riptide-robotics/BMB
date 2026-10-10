@@ -88,11 +88,11 @@ public class Path {
             return this;
         }
 
-        public PathBuilder addNewPoint(EditablePose2D position, double goalVelocity, double goalAcceleration, double delay, FollowMethod followMethod){
-            PathPoint p = new PathPoint(position, goalVelocity, goalAcceleration, delay, followMethod);
-            path.add(p);
-            return this;
-        }
+//        public PathBuilder addNewPoint(EditablePose2D position, double goalVelocity, double goalAcceleration, double delay, FollowMethod followMethod){
+//            PathPoint p = new PathPoint(position, goalVelocity, goalAcceleration, delay, followMethod);
+//            path.add(p);
+//            return this;
+//        }
 
         public PathBuilder addNewSplinePoint(EditablePose2D position, double goalVelocity, double delayUntilNextPoint){
             PathPoint p = new PathPoint(position, goalVelocity, delayUntilNextPoint);
