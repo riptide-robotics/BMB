@@ -11,11 +11,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class SequencedTelemetry extends TelemetryImpl {
     public Map<String, Pair<Long, String>> updates = new LinkedHashMap<>();
 
-    public SequencedTelemetry(OpMode opMode) {
+    public SequencedTelemetry(@NotNull OpMode opMode) {
         super(opMode);
     }
 
@@ -38,7 +39,12 @@ public class SequencedTelemetry extends TelemetryImpl {
         return null;
     }
 
-    public void removeData(String s) {
+    public void removeData(@NotNull String s) {
         updates.remove(s);
+    }
+
+    @NotNull
+    public Long getAge(@NotNull String s) {
+        return System.currentTimeMillis() - Objects.requireNonNull(updates.get(s)).fst;
     }
 }
