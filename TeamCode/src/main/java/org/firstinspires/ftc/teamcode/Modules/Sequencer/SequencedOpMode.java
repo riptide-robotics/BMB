@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.Modules.Sequencer;
 
 //import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 
 
@@ -19,7 +21,7 @@ public abstract class SequencedOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
         sequencer = new Sequencer();
-        sequencer.tele = telemetry;
+        sequencer.tele = new SequencedTelemetry(this);
 //        mtele = new MultipleTelemetry(telemetry);
 
         onStart();
