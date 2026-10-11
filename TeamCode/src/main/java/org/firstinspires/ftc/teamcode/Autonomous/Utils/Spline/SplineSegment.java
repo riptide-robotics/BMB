@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.ejml.simple.SimpleMatrix;
+import org.ejml.simple.SimpleEVD;
 import org.ejml.data.Complex_F64;
 
 public class SplineSegment {
@@ -39,6 +40,33 @@ public class SplineSegment {
             c5 = 1e-12;
         }
 
+        SimpleMatrix norm_c = new SimpleMatrix(new double[]{c4, c3, c2, c1, c0}).divide(c5);
+        SimpleMatrix C = new SimpleMatrix(new double[][]{
+            {0, 0, 0, 0, -norm_c.get(4)},
+            {1, 0, 0, 0, -norm_c.get(3)},
+            {0, 1, 0, 0, -norm_c.get(2)},
+            {0, 0, 1, 0, -norm_c.get(1)},
+            {0, 0, 0, 1, -norm_c.get(0)}
+        });
+
+        SimpleEVD<SimpleMatrix> eig = C.eig();
+
+        double[] closestPoint = null;
+        double closestDist = 1000000.0;
+        for (int i = 0; i < C.numRows(); i++) {
+            Complex_F64 eigenvalue = eig.getEigenvalue(i);
+
+            if (eigenvalue.isReal()) {
+                double t = eigenvalue.getReal();
+                double pointX = getX(t);
+                double pointY = getY(t);
+                if(closestPoint == null || dist(closestPoint[0], closestPoint[1], pointX, pointY) < closestDist) {
+                    closestPoint = new double[]{pointX, pointY};
+                    closestDist = dist(closestPoint[0], closestPoint[1], pointX, pointY);
+                }
+            }
+        }
+
         return null;
     }
 
@@ -68,6 +96,10 @@ public class SplineSegment {
         double h4 = t3 - t2;
 
         return h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
+    }
+
+    public static double dist(double x1, double y1, double x2, double y2) {
+        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
 
 }
