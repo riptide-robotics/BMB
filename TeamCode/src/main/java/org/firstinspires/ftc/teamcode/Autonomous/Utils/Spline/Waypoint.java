@@ -106,7 +106,7 @@ public class Waypoint extends EditablePose2D {
     }
 
     public boolean fullyDefined() {
-        return velocityVectorX != 0 && velocityVectorY != 0;
+        return velocityVectorX != 0 || velocityVectorY != 0;
     }
 
     @NonNull

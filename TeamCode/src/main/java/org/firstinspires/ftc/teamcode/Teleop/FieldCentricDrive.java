@@ -34,18 +34,17 @@ public class FieldCentricDrive extends LinearOpMode {
 
     private void fieldCentricDrive() {
         double slowdown = gamepad1.right_trigger > 0 ? 0.25 : 1;
-        double y = -gamepad1.left_stick_y * slowdown;
-        double x = gamepad1.left_stick_x * 1.1 * slowdown;
-        double rx = gamepad1.right_stick_x * slowdown;
+        double y = -gamepad1.left_stick_y * slowdown; // forward
+        double x = gamepad1.left_stick_x * 1.1 * slowdown; // straff
+        double rx = gamepad1.right_stick_x * slowdown; // rotation
 
         double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
 
-
-        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
         double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
 
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frWheelPower = (rotY - rotX - rx) / denominator;
+        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
         double flWheelPower = (rotY + rotX + rx) / denominator;
         double brWheelPower = (rotY + rotX - rx) / denominator;
         double blWheelPower = (rotY - rotX + rx) / denominator;
