@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name = "Meet 0 FSM")
+@TeleOp(name = "Meet 0 FSM #2")
 public class Meet0FSM extends LinearOpMode {
 
     boolean hasrun = false;

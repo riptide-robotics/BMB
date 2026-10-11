@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Modules.Utils.GoBildaPinpointDriver;
 
 public class OdometryLocalizer implements Runnable {
 
-    public static enum OdometryMethod { THREE_WHEEL, PINPOINT }
+    public static enum OdometryMethod { THREE_WHEEL, PINPOINT, DISABLED }
 
     private final DcMotor leftParallel, rightParallel, perpendicular;
     private final GoBildaPinpointDriver pinpoint;

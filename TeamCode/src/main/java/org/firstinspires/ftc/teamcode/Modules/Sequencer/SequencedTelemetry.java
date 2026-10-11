@@ -23,7 +23,7 @@ public class SequencedTelemetry extends TelemetryImpl {
     @Override
     public boolean update() {
         updates.forEach((s, o) ->
-                super.addData(s,  o.snd + (o.fst > 1000 ? " (Old! "+o.snd+"ms)" : "")));
+                super.addData(s,  o.snd + (o.fst + 1500 < System.currentTimeMillis() ? " (Old by" + (System.currentTimeMillis() - o.fst)/1000 + " seconds!)" : "")));
 
         return super.update();
     }

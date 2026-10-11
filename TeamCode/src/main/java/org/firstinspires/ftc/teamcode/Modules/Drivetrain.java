@@ -27,12 +27,11 @@ public class Drivetrain {
 
     // -------- DRIVETRAIN MOTORS -------- //
     private final DcMotor frWheel, flWheel, brWheel, blWheel;
-    private final GoBildaPinpointDriver pinpoint;
+    private GoBildaPinpointDriver pinpoint;
     private final IMU imu;
     private ElapsedTime timer;
-
-    private final OdometryLocalizer robotPos;
-    private final OdometryLocalizer.OdometryMethod localizationMode = OdometryLocalizer.OdometryMethod.PINPOINT; // to be changed
+    private OdometryLocalizer robotPos;
+    private OdometryLocalizer.OdometryMethod localizationMode = OdometryLocalizer.OdometryMethod.PINPOINT; // to be changed
 
     ///////////////////////////////////////////////
     ////                                     /////
@@ -68,13 +67,18 @@ public class Drivetrain {
         flWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         blWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        if(localizationMode == OdometryLocalizer.OdometryMethod.PINPOINT){
-            this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
-            pinpoint.setOffsets(0.5, 0, DistanceUnit.INCH);
-            pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-            pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-            robotPos = new OdometryLocalizer(this.pinpoint, 10);
-            pinpoint.resetPosAndIMU();
+        if (localizationMode == OdometryLocalizer.OdometryMethod.PINPOINT){
+            try {
+                this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+
+                pinpoint.setOffsets(0.5, 0, DistanceUnit.INCH);
+                pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+                pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                robotPos = new OdometryLocalizer(this.pinpoint, 10);
+                pinpoint.resetPosAndIMU();
+            } catch (Exception e) {
+                localizationMode = OdometryLocalizer.OdometryMethod.DISABLED;
+            }
         }
         else {
             this.pinpoint = null;

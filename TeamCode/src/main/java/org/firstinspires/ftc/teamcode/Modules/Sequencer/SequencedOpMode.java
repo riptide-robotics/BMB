@@ -40,6 +40,7 @@ public abstract class SequencedOpMode extends LinearOpMode {
             onLoop();
             telemetry.update();
             mtele.update();
+            seqtele.update();
         }
         onStop();
     }

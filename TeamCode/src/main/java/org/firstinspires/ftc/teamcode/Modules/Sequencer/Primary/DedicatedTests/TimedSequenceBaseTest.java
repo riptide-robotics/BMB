@@ -11,7 +11,7 @@ public class TimedSequenceBaseTest extends SequencedOpMode {
     boolean check;
 
     public TimedSequenceBase base = new TimedSequenceBase((a) -> {
-        check = true;
+        seqtele.addData("active",true);
     },1000);
 
     @Override
@@ -22,6 +22,6 @@ public class TimedSequenceBaseTest extends SequencedOpMode {
 
     @Override
     public void onLoop() {
-        telemetry.addData("TimesSequenceBase",check);
+
     }
 }
