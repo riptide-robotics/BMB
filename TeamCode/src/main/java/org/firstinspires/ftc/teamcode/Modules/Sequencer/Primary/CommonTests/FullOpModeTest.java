@@ -18,7 +18,7 @@ public class FullOpModeTest extends SequencedOpMode {
         seqtele.addData("Seq 1: Incrementation Test", i);
     },1000,1000);
 
-    DataWatcherSequence seq2 = new DataWatcherSequence<>(
+    DataWatcherSequence<Pose2D> seq2 = new DataWatcherSequence<>(
             () -> robot.getDrivetrain().getCurrPos(),
             Pose2D.class
     );
