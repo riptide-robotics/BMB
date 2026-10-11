@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences;
 
 /**
  * A variant of TimedSequeneBase that runs every cycle. <br>

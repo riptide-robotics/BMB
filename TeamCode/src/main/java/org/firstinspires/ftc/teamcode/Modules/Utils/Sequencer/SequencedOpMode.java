@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Sequencer;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;

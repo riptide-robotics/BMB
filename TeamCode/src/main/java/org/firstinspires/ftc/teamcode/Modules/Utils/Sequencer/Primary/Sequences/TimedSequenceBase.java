@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences;
 
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.SequenceBase;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.SequenceBase;
 
 /**
  * This class is a basic sequence that waits for a segment of time, then executes. <br>

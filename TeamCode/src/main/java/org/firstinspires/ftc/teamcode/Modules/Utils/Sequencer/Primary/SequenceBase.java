@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary;
 
 
-import org.firstinspires.ftc.teamcode.Sequencer.Values;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Values;
 
 /** The base class for every Sequence. Abstract; may not be instantiated directly. However, refer to this to access any given sequence.*/
 public abstract class SequenceBase {

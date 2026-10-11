@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences;
 
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.SequenceBase;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.SequenceBase;
 
 /**
  * This sequence simply will run after another sequence. <br>

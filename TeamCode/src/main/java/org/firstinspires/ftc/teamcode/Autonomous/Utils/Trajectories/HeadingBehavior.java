@@ -58,8 +58,8 @@ public class HeadingBehavior{
 
         double elapsedTime = 0;
         for (int i = 0; i < trajectory.getSplineLength(); i++){
-            if(elapsedTime + )
+            continue;
         }
-
+        return elapsedTime;
     }
 }

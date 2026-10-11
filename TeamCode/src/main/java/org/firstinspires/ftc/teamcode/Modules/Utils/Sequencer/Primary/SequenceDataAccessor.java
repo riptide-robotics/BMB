@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary;
 
-import org.firstinspires.ftc.teamcode.Sequencer.Values;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Values;
 
 public class SequenceDataAccessor {
     public boolean end = false;

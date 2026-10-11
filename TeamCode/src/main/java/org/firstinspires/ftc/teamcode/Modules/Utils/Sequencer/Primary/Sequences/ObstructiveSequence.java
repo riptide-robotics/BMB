@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences;
 
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.SequenceBase;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.SequenceBase;
 
 
 /**Blocks OrderedSequence from running until its condition is fulfilled.*/
