@@ -7,15 +7,28 @@ import org.ejml.simple.SimpleEVD;
 import org.ejml.data.Complex_F64;
 
 public class SplineSegment {
+    // ----- Instance Vars ----- //
     private Waypoint startPoint;
     private Waypoint endPoint;
+
+    // ----- Constructor ---- //
 
     public SplineSegment(Waypoint startPoint, Waypoint endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
     }
 
-    public EditablePose2D getCorrespondingPoint(EditablePose2D pos) {
+    // ----- Functions ----- //
+
+    public double[] getCorrespondingPoint(EditablePose2D pos) {
+        /**
+         * This function gets the point on the spline corresponding to
+         * the robots position. This point will be used to figure out the forces
+         * impacting the robots movement and for calculating things like curvature.
+         *
+         * @param   EditablePose2D pos: the robot position
+         * @return  double[]       {t, point.x, point.y, distance to pos}
+         */
         double a_3X = 2 * startPoint.getX(DistanceUnit.INCH) - 2 * endPoint.getX(DistanceUnit.INCH) + startPoint.getVelocityVectorX() + endPoint.getVelocityVectorX();
         double a_2X = -3 * startPoint.getX(DistanceUnit.INCH) + 3 * endPoint.getX(DistanceUnit.INCH) - 2 * startPoint.getVelocityVectorX() - endPoint.getVelocityVectorX();
         double a_1X = startPoint.getVelocityVectorX();
@@ -53,24 +66,43 @@ public class SplineSegment {
 
         double[] closestPoint = null;
         double closestDist = 1000000.0;
+        double t = 1.0;
         for (int i = 0; i < C.numRows(); i++) {
             Complex_F64 eigenvalue = eig.getEigenvalue(i);
 
             if (eigenvalue.isReal()) {
-                double t = eigenvalue.getReal();
-                double pointX = getX(t);
-                double pointY = getY(t);
+                double temp = eigenvalue.getReal();
+                double pointX = getX(temp);
+                double pointY = getY(temp);
                 if(closestPoint == null || dist(closestPoint[0], closestPoint[1], pointX, pointY) < closestDist) {
                     closestPoint = new double[]{pointX, pointY};
                     closestDist = dist(closestPoint[0], closestPoint[1], pointX, pointY);
+                    t = temp;
                 }
             }
         }
-
-        return null;
+        if (closestPoint == null) {
+            return new double[]{
+                    1.0,
+                    endPoint.getX(DistanceUnit.INCH),
+                    endPoint.getY(DistanceUnit.INCH),
+                    dist(
+                            pos.getX(DistanceUnit.INCH),
+                            pos.getY(DistanceUnit.INCH),
+                            endPoint.getX(DistanceUnit.INCH),
+                            endPoint.getY(DistanceUnit.INCH)
+                    )
+            };
+        }
+        return new double[]{t, closestPoint[0], closestPoint[1], closestDist};
     }
 
-    public EditablePose2D getPointOnCurve(double t) {
+    public double getCurviture(double t) {
+
+        return 0.0;
+    }
+
+    public EditablePose2D getSplinePoint(double t) {
         return new EditablePose2D(getX(t), getY(t), 0, DistanceUnit.INCH);
     }
 
@@ -97,6 +129,26 @@ public class SplineSegment {
 
         return h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
     }
+
+    // ----- Getters and Setters ----- //
+
+    public Waypoint getStartPoint() {
+        return startPoint;
+    }
+
+    public Waypoint getEndPoint() {
+        return endPoint;
+    }
+
+    public void setStartPoint(Waypoint startPoint) {
+        this.startPoint = startPoint;
+    }
+
+    public void setEndPoint(Waypoint endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    // ----- Helpers ----- //
 
     public static double dist(double x1, double y1, double x2, double y2) {
         return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
