@@ -97,9 +97,30 @@ public class SplineSegment {
         return new double[]{t, closestPoint[0], closestPoint[1], closestDist};
     }
 
-    public double getCurviture(double t) {
+    public double getCurvature(double t) {
+        double a_3X = 2 * startPoint.getX(DistanceUnit.INCH) - 2 * endPoint.getX(DistanceUnit.INCH) + startPoint.getVelocityVectorX() + endPoint.getVelocityVectorX();
+        double a_2X = -3 * startPoint.getX(DistanceUnit.INCH) + 3 * endPoint.getX(DistanceUnit.INCH) - 2 * startPoint.getVelocityVectorX() - endPoint.getVelocityVectorX();
+        double a_1X = startPoint.getVelocityVectorX();
 
-        return 0.0;
+        double a_3Y = 2 * startPoint.getY(DistanceUnit.INCH) - 2 * endPoint.getY(DistanceUnit.INCH) + startPoint.getVelocityVectorY() + endPoint.getVelocityVectorY();
+        double a_2Y = -3 * startPoint.getY(DistanceUnit.INCH) + 3 * endPoint.getY(DistanceUnit.INCH) - 2 * startPoint.getVelocityVectorY() - endPoint.getVelocityVectorY();
+        double a_1Y = startPoint.getVelocityVectorY();
+
+        double firstDerivativeX = 3 * a_3X * (t * t) + 2 * a_2X * t + a_1X;
+        double firstDerivativeY = 3 * a_3Y * (t * t) + 2 * a_2Y * t + a_1Y;
+
+        double secondDerivativeX = 6 * a_3X * t + 2 * a_2X;
+        double secondDerivativeY = 6 * a_3Y * t + 2 * a_2Y;
+
+        double crossProduct = (firstDerivativeX * secondDerivativeY) - (firstDerivativeY * secondDerivativeX);
+        double cubeSpeed = Math.pow((firstDerivativeX * firstDerivativeX + firstDerivativeY * firstDerivativeY), 1.5);
+
+        // so no divide by 0
+        if (cubeSpeed < 1e-12) {
+            return 0.0;
+        }
+
+        return crossProduct / cubeSpeed;
     }
 
     public EditablePose2D getSplinePoint(double t) {

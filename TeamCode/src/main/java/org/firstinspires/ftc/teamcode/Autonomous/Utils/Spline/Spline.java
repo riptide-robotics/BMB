@@ -55,7 +55,7 @@ public class Spline {
     }
 
     public Spline build() {
-        numPoints = waypoints.size();;
+        numPoints = waypoints.size();
         definePoints();
         buildSegments();
         return this;
@@ -124,8 +124,20 @@ public class Spline {
     }
 
     public double[] follow(EditablePose2D pos) {
+        if(/* Moving on to next segment, probably perpendicular line to start point and distance check */ true) {currentSegment++;}
+        if(done()) {return new double[]{0.0, 0.0, 0.0, 0.0};}
+
+        // get corresponding point
+
+        // get curvature of point
+
+        // find all the forces (3) on the robot
+
+        // return the net force and rotation or wheel powers, need to decide
 
         return new double[]{0, 0, 0, 0};
     }
+
+    public boolean done() {return currentSegment >= segments.size();}
 
 }
