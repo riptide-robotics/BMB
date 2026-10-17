@@ -124,7 +124,15 @@ public class Spline {
     }
 
     public double[] follow(EditablePose2D pos) {
-        if(pastSegment(pos)) {currentSegment++;}
+        if(pastSegment(
+                pos,
+                SplineSegment.dist(
+                        segments.get(currentSegment).getEndPoint().getX(DistanceUnit.INCH),
+                        segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH),
+                        pos.getX(DistanceUnit.INCH),
+                        pos.getY(DistanceUnit.INCH)
+                )
+        )) {currentSegment++;}
         if(done()) {return new double[]{0.0, 0.0, 0.0, 0.0};}
 
         // get corresponding point
@@ -160,7 +168,8 @@ public class Spline {
         return new double[] {netForce[0] / netMagnitude, netForce[1] / netMagnitude, (goalAngle - pos.getH()) / (Math.PI / 4)};
     }
 
-    public boolean pastSegment(EditablePose2D pos) {
+    public boolean pastSegment(EditablePose2D pos, double dist) {
+        if (dist > 5) {return false;}
         double angleCutoff = segments.get(currentSegment).getEndPoint().getAngle(); // need to get perpendicular for line of passing to next seg
         double perpendicular = angleCutoff + (Math.PI / 2);
 
@@ -174,5 +183,13 @@ public class Spline {
     }
 
     public boolean done() {return currentSegment >= segments.size();}
+
+    public String print() {
+        StringBuilder returnStr = new StringBuilder();
+        for(Waypoint i: waypoints) {
+            returnStr.append(i.toString()).append("\n");
+        }
+        return returnStr.toString();
+    }
 
 }

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Modules.Drivetrain;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 
 @Config
-@Autonomous(name = "TEST AUTO")
+@Autonomous(name = "Test Auto")
 public class TestAuto extends LinearOpMode {
     private ElapsedTime timer = new ElapsedTime();
     HardwareMap hardwareMap;

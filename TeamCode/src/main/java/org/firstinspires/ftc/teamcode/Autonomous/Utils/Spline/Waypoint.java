@@ -37,6 +37,13 @@ public class Waypoint extends EditablePose2D {
 //        goalSpeed = -1;
 //    }
 
+    public Waypoint(EditablePose2D pos) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
+        velocityVectorX = 0;
+        velocityVectorY = 0;
+        this.goalSpeed = -1;
+    }
+
     public Waypoint(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed) {
         super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
         velocityVectorX = velocityX;
