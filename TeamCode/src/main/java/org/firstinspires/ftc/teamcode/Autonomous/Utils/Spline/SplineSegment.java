@@ -151,6 +151,32 @@ public class SplineSegment {
         return h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
     }
 
+    public double getSlopeX(double t) {
+        double t2 = t * t;
+
+        double h1 =  6.0 * t2 - 6.0 * t;
+        double h2 = -6.0 * t2 + 6.0 * t;
+        double h3 = 3.0 * t2 - 4.0 * t + 1.0;
+        double h4 = 3.0 * t2 - 2.0 * t;
+
+        return h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
+    }
+
+    public double getSlopeY(double t) {
+        double t2 = t * t;
+
+        double h1 =  6.0 * t2 - 6.0 * t;
+        double h2 = -6.0 * t2 + 6.0 * t;
+        double h3 = 3.0 * t2 - 4.0 * t + 1.0;
+        double h4 = 3.0 * t2 - 2.0 * t;
+
+        return h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
+    }
+
+    public double getSlope(double t) {
+        return Math.atan2(getSlopeX(t), getSlopeY(t));
+    }
+
     // ----- Getters and Setters ----- //
 
     public Waypoint getStartPoint() {

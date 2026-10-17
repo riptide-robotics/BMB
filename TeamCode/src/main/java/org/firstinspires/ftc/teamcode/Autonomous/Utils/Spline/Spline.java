@@ -124,18 +124,53 @@ public class Spline {
     }
 
     public double[] follow(EditablePose2D pos) {
-        if(/* Moving on to next segment, probably perpendicular line to start point and distance check */ true) {currentSegment++;}
+        if(pastSegment(pos)) {currentSegment++;}
         if(done()) {return new double[]{0.0, 0.0, 0.0, 0.0};}
 
         // get corresponding point
+        double[] correspondingPoint = segments.get(currentSegment).getCorrespondingPoint(pos);
 
         // get curvature of point
+        double curvature = segments.get(currentSegment).getCurvature(correspondingPoint[0]);
+        double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / curvature);
+
+        // dx and dy
+        double dx = correspondingPoint[1] - pos.getX(DistanceUnit.INCH);
+        double dy = correspondingPoint[2] - pos.getY(DistanceUnit.INCH);
 
         // find all the forces (3) on the robot
+        double forwardAngle = Math.atan2(segments.get(currentSegment).getSlopeX(correspondingPoint[0]), segments.get(currentSegment).getSlopeY(correspondingPoint[0]));
+        double[] forwardForce = new double[] {Math.cos(forwardAngle), Math.sin(forwardAngle)};
+
+        double[] curvatureForce = new double[] {-Math.cos(forwardAngle) * curvatureFactor, -Math.sin(forwardAngle) * curvatureFactor};
+
+        double[] crossTrackForce = new double[] {Math.clamp(dx * Math.sqrt(5 / correspondingPoint[3]), -1, 1), Math.clamp(dy * Math.sqrt(5 / correspondingPoint[3]), -1, 1)};
 
         // return the net force and rotation or wheel powers, need to decide
+        double netForceX = forwardForce[0] + curvatureForce[0] + crossTrackForce[0];
+        double netForceY = forwardForce[1] + curvatureForce[1] + crossTrackForce[1];
+        double netForceAngle = Math.atan2(netForceX, netForceY);
 
-        return new double[]{0, 0, 0, 0};
+        double[] netForce = new double[]{netForceX * Math.cos(netForceAngle), netForceY * Math.sin(netForceY)};
+        double netMagnitude = SplineSegment.dist(0, 0, netForce[0], netForce[1]);
+
+        double goalAngle = segments.get(currentSegment).getStartPoint().getH() +
+                (segments.get(currentSegment).getEndPoint().getH() - segments.get(currentSegment).getStartPoint().getH()) * correspondingPoint[0];
+
+        return new double[] {netForce[0] / netMagnitude, netForce[1] / netMagnitude, (goalAngle - pos.getH()) / (Math.PI / 4)};
+    }
+
+    public boolean pastSegment(EditablePose2D pos) {
+        double angleCutoff = segments.get(currentSegment).getEndPoint().getAngle(); // need to get perpendicular for line of passing to next seg
+        double perpendicular = angleCutoff + (Math.PI / 2);
+
+        double dx = segments.get(currentSegment).getEndPoint().getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH);
+        double dy = segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH);
+
+        double determinant = Math.cos(perpendicular) * dy - Math.sin(perpendicular) * dx; // cross product to get if point above or below line
+        double directionSpline = segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint().getY(DistanceUnit.INCH);
+
+        return determinant == 0 || (directionSpline > 0 && determinant > 0) || (directionSpline < 0 && determinant < 0); // on line or below line or above line.
     }
 
     public boolean done() {return currentSegment >= segments.size();}
