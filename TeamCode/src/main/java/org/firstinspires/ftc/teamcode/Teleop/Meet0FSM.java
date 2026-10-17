@@ -1,5 +1,10 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
+import static org.firstinspires.ftc.teamcode.riptideUtil.horizontalSlideExtendedPos;
+import static org.firstinspires.ftc.teamcode.riptideUtil.horizontalSlideRetractedPos;
+import static org.firstinspires.ftc.teamcode.riptideUtil.intakePower;
+import static org.firstinspires.ftc.teamcode.riptideUtil.outtakePower;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,9 +20,6 @@ public class Meet0FSM extends LinearOpMode {
     Robot robot;
 
     boolean hasrun = false;
-
-
-
 
 
     public enum states{
@@ -45,6 +47,7 @@ public class Meet0FSM extends LinearOpMode {
         while(opModeIsActive()){
             telemetry.addData("Current State:", currentState);
             telemetry.update();
+            FSM();
             fieldCentricDrive();
         }
     }
@@ -56,15 +59,16 @@ public class Meet0FSM extends LinearOpMode {
 
                 if (!hasrun){
                     //Do idle things
+                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideRetractedPos);
                     hasrun = true;
                 }
 
-                if (gamepad2.left_trigger > 0.1){
+                if (gamepad2.b){
                     currentState = states.INTAKE;
                     hasrun = false;
                 }
 
-                if (gamepad2.left_trigger > 0.1){
+                if (gamepad2.x){
                     currentState = states.OUTTAKE;
                     hasrun = false;
                 }
@@ -73,6 +77,7 @@ public class Meet0FSM extends LinearOpMode {
             case INTAKE:
                 if (!hasrun){
                     //Do intake setup
+                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideRetractedPos);
                     hasrun = true;
                 }
 
@@ -81,7 +86,27 @@ public class Meet0FSM extends LinearOpMode {
                     hasrun = false;
                 }
 
-                if (gamepad2.b){
+                if (gamepad2.left_bumper){
+                    robot.getHorizontalSlides().extendLeftSlide(horizontalSlideRetractedPos);
+                }
+
+                if (gamepad2.right_bumper){
+                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideExtendedPos);
+                }
+
+                if (gamepad2.right_trigger > 0.1){
+                    robot.getIntake().setPower(intakePower);
+                } else {
+                    robot.getIntake().setPower(0);
+                }
+
+                if (gamepad2.left_trigger > 0.1){
+                    robot.getOuttake().setOuttakePower(outtakePower);
+                } else{
+                    robot.getOuttake().setOuttakePower(0);
+                }
+
+                if (gamepad2.y){
                     currentState = states.IDLE;
                     hasrun = false;
                 }
@@ -90,19 +115,19 @@ public class Meet0FSM extends LinearOpMode {
             case OUTTAKE:
                 if (!hasrun){
                     //Do outtake setup
+                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideRetractedPos);
                     hasrun = true;
                 }
 
-                if (gamepad2.b){
+                if (gamepad2.y){
                     currentState = states.IDLE;
                     hasrun = false;
                 }
 
-                if (gamepad2.left_trigger > 0.1){
+                if (gamepad2.b){
                     currentState = states.INTAKE;
                     hasrun = false;
                 }
-
 
                 break;
         }

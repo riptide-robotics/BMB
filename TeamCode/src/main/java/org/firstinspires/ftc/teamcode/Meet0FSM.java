@@ -42,6 +42,7 @@ public class Meet0FSM extends LinearOpMode {
             case TELEOP:
                 if (!hasrun){
                     // do setup stuff for this case
+
                     hasrun = true;
                 }
 

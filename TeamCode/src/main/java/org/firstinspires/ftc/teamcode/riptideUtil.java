@@ -49,4 +49,22 @@ public class riptideUtil {
         return error;
     }
 
+
+
+
+
+
+
+    /** HORIZONTAL SLIDE STUFF */
+    public static double horizontalSlideRetractedPos = 0.43;
+    public static double horizontalSlideExtendedPos = 0;
+
+
+    /** INTAKE STUFF */
+    public static double intakePower = 1;
+
+    /** OUTTAKE STUFF */
+    public static double outtakePower = 0;
+
+
 }
