@@ -11,10 +11,12 @@ public class Spline {
     private ArrayList<SplineSegment> segments;
     private int currentSegment = 0;
     private int numPoints;
+    private String log;
 
     public Spline(SplineBuilder s) {
         this.waypoints = s.getPath();
         this.segments = new ArrayList<>();
+        this.log = "";
         build();
     }
 
@@ -62,14 +64,17 @@ public class Spline {
     }
 
     public void definePoints() {
+        logNewLine("Define Points: ");
         if(!waypoints.get(0).fullyDefined() || !waypoints.get(numPoints - 1).fullyDefined()) {
             throw new IllegalStateException("Endpoints aren't fully defined");
         }
 
         for(int i=0; i<numPoints; i++) {
             if(!waypoints.get(i).fullyDefined()) {
+                logNewLine("   waypoint" + i + "isn't fully defined.");
                 for(int j=i+1; j<numPoints; j++) {
                     if (waypoints.get(j).fullyDefined()) {
+                        logNewLine("   up until waypoint ", j-1);
                         defineRange(i-1, j);
                         i = j;
                         break;
@@ -77,6 +82,7 @@ public class Spline {
                 }
             }
         }
+        lineBreak();
     }
 
     public void defineRange(int start, int end) {
@@ -118,33 +124,50 @@ public class Spline {
     }
 
     public void buildSegments() {
+        logNewLine("Building Segments...");
         for (int i=0; i<numPoints-1; i++) {
             segments.add(new SplineSegment(waypoints.get(i), waypoints.get(i+1)));
         }
+        lineBreak();
     }
 
     public double[] follow(EditablePose2D pos) {
-        if(pastSegment(
-                pos,
-                SplineSegment.dist(
-                        segments.get(currentSegment).getEndPoint().getX(DistanceUnit.INCH),
-                        segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH),
-                        pos.getX(DistanceUnit.INCH),
-                        pos.getY(DistanceUnit.INCH)
-                )
-        )) {currentSegment++;}
+        logNewLine("Follow: ");
+
+        boolean pastSeg = pastSegment(
+            pos,
+            SplineSegment.dist(
+                    segments.get(currentSegment).getEndPoint().getX(DistanceUnit.INCH),
+                    segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH),
+                    pos.getX(DistanceUnit.INCH),
+                    pos.getY(DistanceUnit.INCH)
+            )
+        );
+        logNewLine("   Past Segment: ", pastSeg);
+        if(pastSeg) {currentSegment++;}
+
+        logNewLine("   done: ", done());
         if(done()) {return new double[]{0.0, 0.0, 0.0, 0.0};}
 
         // get corresponding point
         double[] correspondingPoint = segments.get(currentSegment).getCorrespondingPoint(pos);
 
+        log("   point: {", correspondingPoint[1]);
+        log(", ", correspondingPoint[2]);
+        logNewLine("}");
+
         // get curvature of point
         double curvature = segments.get(currentSegment).getCurvature(correspondingPoint[0]);
         double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / curvature);
+        logNewLine("   Curvature Factor: ", curvatureFactor);
 
         // dx and dy
         double dx = correspondingPoint[1] - pos.getX(DistanceUnit.INCH);
         double dy = correspondingPoint[2] - pos.getY(DistanceUnit.INCH);
+
+        log("   d: {", dx);
+        log(", ", dy);
+        logNewLine("}");
 
         // find all the forces (3) on the robot
         double forwardAngle = Math.atan2(segments.get(currentSegment).getSlopeX(correspondingPoint[0]), segments.get(currentSegment).getSlopeY(correspondingPoint[0]));
@@ -162,27 +185,83 @@ public class Spline {
         double[] netForce = new double[]{netForceX * Math.cos(netForceAngle), netForceY * Math.sin(netForceY)};
         double netMagnitude = SplineSegment.dist(0, 0, netForce[0], netForce[1]);
 
+        log("   Net Force: {", netForce[0]);
+        log(", ", netForce[1]);
+        log(", ", netForceAngle);
+        logNewLine(" rad}; magnitude: ", netMagnitude);
+
         double goalAngle = segments.get(currentSegment).getStartPoint().getH() +
                 (segments.get(currentSegment).getEndPoint().getH() - segments.get(currentSegment).getStartPoint().getH()) * correspondingPoint[0];
 
+        lineBreak();
         return new double[] {netForce[0] / netMagnitude, netForce[1] / netMagnitude, (goalAngle - pos.getH()) / (Math.PI / 4)};
     }
 
     public boolean pastSegment(EditablePose2D pos, double dist) {
+        logNewLine("   Past Segment: ");
+        logNewLine("      Too Far: ", dist > 5);
         if (dist > 5) {return false;}
         double angleCutoff = segments.get(currentSegment).getEndPoint().getAngle(); // need to get perpendicular for line of passing to next seg
         double perpendicular = angleCutoff + (Math.PI / 2);
 
+        log("      Perpendicular: ", perpendicular);
+        logNewLine(" rad");
+
         double dx = segments.get(currentSegment).getEndPoint().getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH);
         double dy = segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH);
 
+        log("      Dist Endpt: {", dx);
+        log(", ", dy);
+        logNewLine("}");
+
         double determinant = Math.cos(perpendicular) * dy - Math.sin(perpendicular) * dx; // cross product to get if point above or below line
         double directionSpline = segments.get(currentSegment).getEndPoint().getY(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint().getY(DistanceUnit.INCH);
+
+        logNewLine("      Determinant: ", determinant);
+        logNewLine("      Direction: ", directionSpline);
 
         return determinant == 0 || (directionSpline > 0 && determinant > 0) || (directionSpline < 0 && determinant < 0); // on line or below line or above line.
     }
 
     public boolean done() {return currentSegment >= segments.size();}
+
+    public String getLog() {
+        return log;
+    }
+
+    private void log(String msg) { log += msg;}
+
+    private void logNewLine(String msg) { log += msg + "\n"; }
+
+    private <T> void log(String msg, T val) {
+        log += msg + val.toString();
+    }
+
+    private <T> void logNewLine(String msg, T val) {
+        log += msg + val.toString() + "\n";
+    }
+
+    public void lineBreak() {
+        log += "\n";
+    }
+
+    public void clearLog() {
+        log = "";
+    }
+
+    public String getSegmentLog() {
+        return segments.get(currentSegment).getLog();
+    }
+
+    public void clearSegmentLog() {
+        segments.get(currentSegment).clearLog();
+    }
+
+    public void clearAllSegmentLogs() {
+        for(SplineSegment i: segments) {
+            i.clearLog();
+        }
+    }
 
     public String print() {
         StringBuilder returnStr = new StringBuilder();
@@ -190,6 +269,10 @@ public class Spline {
             returnStr.append(i.toString()).append("\n");
         }
         return returnStr.toString();
+    }
+
+    public int getCurrentSegment() {
+        return currentSegment;
     }
 
 }

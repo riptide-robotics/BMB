@@ -35,11 +35,16 @@ public class TestInit extends LinearOpMode {
         while(opModeIsActive()) {
             t.addData("Spline: ", spline.print());
             t.addData("Follow1: \n", stringFollowPrint(spline.follow(pos1)));
-            t.addData("Follow2: \n", stringFollowPrint(spline.follow(pos2)));
             t.addData("Past Segment1: ", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5)));
+            t.addData("Follow2: \n", stringFollowPrint(spline.follow(pos2)));
             t.addData("Past Segment2: ", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5)));
             t.addData("Done", spline.done());
+            t.addData("Current Segment: ", spline.getCurrentSegment());
+            t.addData("Spline Log:\n", spline.getLog());
+            t.addData("\nSegment Log:\n", spline.getSegmentLog());
             t.update();
+            spline.clearLog();
+            spline.clearSegmentLog();
         }
     }
 

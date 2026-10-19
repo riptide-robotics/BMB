@@ -10,12 +10,14 @@ public class SplineSegment {
     // ----- Instance Vars ----- //
     private Waypoint startPoint;
     private Waypoint endPoint;
+    private String log;
 
     // ----- Constructor ---- //
 
     public SplineSegment(Waypoint startPoint, Waypoint endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
+        this.log = "";
     }
 
     // ----- Functions ----- //
@@ -64,6 +66,8 @@ public class SplineSegment {
 
         SimpleEVD<SimpleMatrix> eig = C.eig();
 
+        logNewLine("Corresponding Point: ");
+
         double[] closestPoint = null;
         double closestDist = 1000000.0;
         double t = 1.0;
@@ -79,6 +83,12 @@ public class SplineSegment {
                     closestDist = dist(closestPoint[0], closestPoint[1], pointX, pointY);
                     t = temp;
                 }
+                log("   new closest pt: {x: ", closestPoint[0]);
+                log(", y: ", closestPoint[1]);
+                logNewLine("}");
+                logNewLine("   dist: ", closestDist);
+                logNewLine("   u: ", t);
+                lineBreak();
             }
         }
         if (closestPoint == null) {
@@ -98,6 +108,8 @@ public class SplineSegment {
     }
 
     public double getCurvature(double t) {
+        logNewLine("Curvature: ");
+
         double a_3X = 2 * startPoint.getX(DistanceUnit.INCH) - 2 * endPoint.getX(DistanceUnit.INCH) + startPoint.getVelocityVectorX() + endPoint.getVelocityVectorX();
         double a_2X = -3 * startPoint.getX(DistanceUnit.INCH) + 3 * endPoint.getX(DistanceUnit.INCH) - 2 * startPoint.getVelocityVectorX() - endPoint.getVelocityVectorX();
         double a_1X = startPoint.getVelocityVectorX();
@@ -115,15 +127,26 @@ public class SplineSegment {
         double crossProduct = (firstDerivativeX * secondDerivativeY) - (firstDerivativeY * secondDerivativeX);
         double cubeSpeed = Math.pow((firstDerivativeX * firstDerivativeX + firstDerivativeY * firstDerivativeY), 1.5);
 
+        logNewLine("   cross prod: ", crossProduct);
+        logNewLine("   cube speed: ", cubeSpeed);
+
         // so no divide by 0
         if (cubeSpeed < 1e-12) {
             return 0.0;
         }
 
+        logNewLine("   curvature val: ", crossProduct / cubeSpeed);
+        lineBreak();
+
         return crossProduct / cubeSpeed;
     }
 
     public EditablePose2D getSplinePoint(double t) {
+        logNewLine("Get Spline Point: ");
+        log("   {", getX(t));
+        log(", ", getY(t));
+        logNewLine("} ");
+        lineBreak();
         return new EditablePose2D(getX(t), getY(t), 0, DistanceUnit.INCH);
     }
 
@@ -136,7 +159,12 @@ public class SplineSegment {
         double h3 = t3 - 2.0f * t2 + t;
         double h4 = t3 - t2;
 
-        return h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
+        double x = h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
+
+        logNewLine("         x val: ", x);
+        lineBreak();
+
+        return x;
     }
 
     public double getY(double t) {
@@ -148,7 +176,12 @@ public class SplineSegment {
         double h3 = t3 - 2.0f * t2 + t;
         double h4 = t3 - t2;
 
-        return h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
+        double y = h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
+
+        logNewLine("         y val: ", y);
+        lineBreak();
+
+        return y;
     }
 
     public double getSlopeX(double t) {
@@ -159,7 +192,12 @@ public class SplineSegment {
         double h3 = 3.0 * t2 - 4.0 * t + 1.0;
         double h4 = 3.0 * t2 - 2.0 * t;
 
-        return h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
+        double slope = h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
+
+        logNewLine("         SlopeX: ", slope);
+        lineBreak();
+
+        return slope;
     }
 
     public double getSlopeY(double t) {
@@ -170,20 +208,64 @@ public class SplineSegment {
         double h3 = 3.0 * t2 - 4.0 * t + 1.0;
         double h4 = 3.0 * t2 - 2.0 * t;
 
-        return h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
+        double slope = h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
+
+        logNewLine("         SlopeY: ", slope);
+        lineBreak();
+
+        return slope;
     }
 
     public double getSlope(double t) {
+        /**
+         * Gets the slope of the spline [0, 1] at t where
+         * t ∈ [0, 1]. It is found by the tangent of the slope
+         * of the y function divided by the slope of the x function
+         * at t.
+         *
+         * @param   double t: t along spline
+         * @return  radians: p'(t) along spline
+         */
+        logNewLine("      Slope: ", Math.atan2(getSlopeX(t), getSlopeY(t)));
+        lineBreak();
         return Math.atan2(getSlopeX(t), getSlopeY(t));
+    }
+
+    public String getLog() {
+        return log;
+    }
+
+    private void log(String msg) { log += msg;}
+
+    private void logNewLine(String msg) { log += msg + "\n"; }
+
+    private <T> void log(String msg, T val) {
+        log += msg + val.toString();
+    }
+
+    private <T> void logNewLine(String msg, T val) {
+        log += msg + val.toString() + "\n";
+    }
+
+    public void lineBreak() {
+        log += "\n";
+    }
+
+    public void clearLog() {
+        log = "";
     }
 
     // ----- Getters and Setters ----- //
 
     public Waypoint getStartPoint() {
+        logNewLine("Start pt: " + startPoint.toString());
+        lineBreak();
         return startPoint;
     }
 
     public Waypoint getEndPoint() {
+        logNewLine("End pt: " + endPoint.toString());
+        lineBreak();
         return endPoint;
     }
 
