@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.DedicatedTests;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.DedicatedTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences.LinkedSequence;
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences.RepeatedSequence;
-import org.firstinspires.ftc.teamcode.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.LinkedSequence;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.RepeatedSequence;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.SequencedOpMode;
 
 @TeleOp(name = "LinkedSequenceTest", group = "Sequencer Dedicated Tests")
 public class LinkedSequenceTest extends SequencedOpMode {

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.DataWatcherSequence;
 import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.RepeatedSequence;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.SequenceBase;
 
 /**This enum is a way of storing sequences that are often run.*/
 public enum CommonSequences {

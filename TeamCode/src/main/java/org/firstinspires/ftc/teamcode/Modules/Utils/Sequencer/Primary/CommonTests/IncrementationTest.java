@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.CommonTests;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.CommonTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences.RepeatedSequence;
-import org.firstinspires.ftc.teamcode.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.RepeatedSequence;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.SequencedOpMode;
 
 @TeleOp(name = "IncrementationTest", group = "Sequencer Tests")
 public class IncrementationTest extends SequencedOpMode {

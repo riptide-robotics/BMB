@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.DedicatedTests;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.DedicatedTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences.DataWatcherSequence;
-import org.firstinspires.ftc.teamcode.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.DataWatcherSequence;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.SequencedOpMode;
 
 @TeleOp(name = "DataWatcherSequenceTest2", group = "Sequencer Dedicated Tests")
 public class DataWatcherSequenceTest2 extends SequencedOpMode {

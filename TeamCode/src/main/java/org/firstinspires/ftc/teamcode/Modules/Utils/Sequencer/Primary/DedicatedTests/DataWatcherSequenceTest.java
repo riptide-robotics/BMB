@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.Sequencer.Primary.DedicatedTests;
+package org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.DedicatedTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Sequencer.CommonSequences;
-import org.firstinspires.ftc.teamcode.Sequencer.Primary.Sequences.DataWatcherSequence;
-import org.firstinspires.ftc.teamcode.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.CommonSequences;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.Primary.Sequences.DataWatcherSequence;
+import org.firstinspires.ftc.teamcode.Modules.Utils.Sequencer.SequencedOpMode;
 
 @TeleOp(name = "DataWatcherSequenceTest", group = "Sequencer Dedicated Tests")
 public class DataWatcherSequenceTest extends SequencedOpMode {
