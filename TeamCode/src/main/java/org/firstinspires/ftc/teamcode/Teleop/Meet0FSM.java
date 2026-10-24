@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Teleop;
 import static org.firstinspires.ftc.teamcode.riptideUtil.horizontalSlideExtendedPos;
 import static org.firstinspires.ftc.teamcode.riptideUtil.horizontalSlideRetractedPos;
 import static org.firstinspires.ftc.teamcode.riptideUtil.intakePower;
+import static org.firstinspires.ftc.teamcode.riptideUtil.intakeServoDown;
+import static org.firstinspires.ftc.teamcode.riptideUtil.intakeServoUp;
 import static org.firstinspires.ftc.teamcode.riptideUtil.outtakePower;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -36,7 +38,7 @@ public class Meet0FSM extends LinearOpMode {
         hasrun = false;
         telemetry.addData("Robot status:", "succesfully initiated");
         telemetry.update();
-
+        robot.getIntake().setIntakePosition(intakeServoUp);
         waitForStart();
         if (isStopRequested()) return;
 
@@ -59,43 +61,18 @@ public class Meet0FSM extends LinearOpMode {
 
                 if (!hasrun){
                     //Do idle things
-                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideRetractedPos);
+                    robot.getIntake().setIntakePosition(intakeServoDown);
                     hasrun = true;
-                }
-
-                if (gamepad2.b){
-                    currentState = states.INTAKE;
-                    hasrun = false;
-                }
-
-                if (gamepad2.x){
-                    currentState = states.OUTTAKE;
-                    hasrun = false;
-                }
-
-                break;
-            case INTAKE:
-                if (!hasrun){
-                    //Do intake setup
-                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideRetractedPos);
-                    hasrun = true;
-                }
-
-                if (gamepad2.x){
-                    currentState = states.OUTTAKE;
-                    hasrun = false;
-                }
-
-                if (gamepad2.left_bumper){
-                    robot.getHorizontalSlides().extendLeftSlide(horizontalSlideRetractedPos);
-                }
-
-                if (gamepad2.right_bumper){
-                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideExtendedPos);
                 }
 
                 if (gamepad2.right_trigger > 0.1){
                     robot.getIntake().setPower(intakePower);
+                } else {
+                    robot.getIntake().setPower(0);
+                }
+
+                if (gamepad2.back){
+                    robot.getIntake().setPower(-intakePower);
                 } else {
                     robot.getIntake().setPower(0);
                 }
@@ -106,28 +83,27 @@ public class Meet0FSM extends LinearOpMode {
                     robot.getOuttake().setOuttakePower(0);
                 }
 
-                if (gamepad2.y){
-                    currentState = states.IDLE;
-                    hasrun = false;
+                if (gamepad2.right_bumper){
+                    robot.getIntake().setIntakePosition(intakeServoDown);
+                }
+                if (gamepad2.left_bumper){
+                    robot.getIntake().setIntakePosition(intakeServoUp);
                 }
 
-                break;
-            case OUTTAKE:
-                if (!hasrun){
-                    //Do outtake setup
-                    robot.getHorizontalSlides().retractLeftSlide(horizontalSlideRetractedPos);
-                    hasrun = true;
-                }
 
-                if (gamepad2.y){
-                    currentState = states.IDLE;
-                    hasrun = false;
-                }
 
-                if (gamepad2.b){
-                    currentState = states.INTAKE;
-                    hasrun = false;
-                }
+
+
+
+//                if (gamepad2.b){
+//                    currentState = states.INTAKE;
+//                    hasrun = false;
+//                }
+//
+//                if (gamepad2.x){
+//                    currentState = states.OUTTAKE;
+//                    hasrun = false;
+//                }
 
                 break;
         }
