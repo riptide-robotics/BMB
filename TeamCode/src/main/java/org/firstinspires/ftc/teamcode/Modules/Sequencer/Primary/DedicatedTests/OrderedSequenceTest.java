@@ -42,6 +42,6 @@ public class OrderedSequenceTest extends SequencedOpMode {
 
     @Override
     public void onLoop() {
-        telemetry.addData("progress", progress);
+        seqtele.addData("progress", progress);
     }
 }

@@ -29,11 +29,11 @@ public class ZoneOpModeTest extends SequencedOpMode {
         sequencer.addSequence(dws);
 
         sequencer.addSequence( new RepeatedSequence((accessor) -> {
-            telemetry.addData("Zones", dws.get());
+            seqtele.addData("Zones", dws.get());
         },1000,1000));
 
         sequencer.addSequence(new FullLoopSequence((accessor) -> {
-            telemetry.addData("Second-period Zones", dws.get());
+            seqtele.addData("Second-period Zones", dws.get());
         }));
 
     }

@@ -21,7 +21,7 @@ public class SecZonePrintTest extends SequencedOpMode {
         sequencer.addSequence(dws);
 
         sequencer.addSequence( new RepeatedSequence((accessor) -> {
-            telemetry.addData("Zones: ", dws.get());
+            seqtele.addData("Zones: ", dws.get());
         },1000,1000));
     }
 

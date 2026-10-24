@@ -23,7 +23,7 @@ public class OpModeTest extends SequencedOpMode {
             if (gamepad1.a) gamepad1.rumble(1000);
             if (gamepad1.b) gamepad1.rumble(5000);
 
-            telemetry.addData("Zones", Zones.getRobotZones(robot));
+            seqtele.addData("Zones", Zones.getRobotZones(robot));
         }));
 
 
