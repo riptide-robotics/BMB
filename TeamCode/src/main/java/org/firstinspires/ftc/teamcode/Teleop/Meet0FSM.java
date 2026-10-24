@@ -34,7 +34,7 @@ public class Meet0FSM extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        robot = new Robot(hardwareMap);
         hasrun = false;
         telemetry.addData("Robot status:", "succesfully initiated");
         telemetry.update();
