@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name = "Baby Auton")
 public class BabyAuton extends LinearOpMode {
 
-    public static double speed = 0;
+    public static double speed = 1;
     public ElapsedTime timer;
     DcMotor flWheel;
     DcMotor frWheel;
@@ -26,18 +26,18 @@ public class BabyAuton extends LinearOpMode {
         frWheel = hardwareMap.dcMotor.get("frWheel");
         blWheel = hardwareMap.dcMotor.get("blWheel");
         brWheel = hardwareMap.dcMotor.get("brWheel");
-
+        timer = new ElapsedTime();
         waitForStart();
         timer.reset();
         timer.startTime();
 
         while (opModeIsActive()) {
 
-            if (timer.milliseconds() <= 3000) {
+            if (timer.milliseconds() <= 500) {
                 flWheel.setPower(speed);
-                frWheel.setPower(speed);
+                frWheel.setPower(-speed);
                 blWheel.setPower(speed);
-                brWheel.setPower(speed);
+                brWheel.setPower(-speed);
             }
             else {
                 flWheel.setPower(0);

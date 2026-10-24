@@ -62,7 +62,7 @@ public class riptideUtil {
 
     /** INTAKE STUFF */
     public static double intakePower = 1;
-    public static double intakeServoUp = 1;
+    public static double intakeServoUp = 0.4;
     public static double intakeServoDown = 0.145;
 
     /** OUTTAKE STUFF */

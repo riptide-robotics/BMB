@@ -67,11 +67,7 @@ public class Meet0FSM extends LinearOpMode {
 
                 if (gamepad2.right_trigger > 0.1){
                     robot.getIntake().setPower(intakePower);
-                } else {
-                    robot.getIntake().setPower(0);
-                }
-
-                if (gamepad2.back){
+                }  else if (gamepad2.back){
                     robot.getIntake().setPower(-intakePower);
                 } else {
                     robot.getIntake().setPower(0);
@@ -79,6 +75,8 @@ public class Meet0FSM extends LinearOpMode {
 
                 if (gamepad2.left_trigger > 0.1){
                     robot.getOuttake().setOuttakePower(outtakePower);
+                }   else if (gamepad2.start){
+                    robot.getOuttake().setOuttakePower(-outtakePower);
                 } else{
                     robot.getOuttake().setOuttakePower(0);
                 }
