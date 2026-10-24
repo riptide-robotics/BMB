@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Modules;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+//import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+//import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 // vision stuff
@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Modules.Camera;
  * This class is the hardware aspect of the camera, the camera class will be used for the pipeline (what processes the feed)
  *
  */
-@Autonomous
-public class CameraHardware {
+//@Autonomous
+public class CameraHardware  {
 
     ///////////////////////////////////////////////
     ////                                     /////
