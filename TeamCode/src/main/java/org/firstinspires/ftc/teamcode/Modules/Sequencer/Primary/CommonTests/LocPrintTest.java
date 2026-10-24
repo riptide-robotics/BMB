@@ -27,4 +27,8 @@ public class LocPrintTest extends SequencedOpMode {
     public void onLoop() {
 
     }
+    @Override
+    public boolean useDriverControls() {
+        return true;
+    }
 }

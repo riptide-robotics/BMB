@@ -31,4 +31,8 @@ public class DependentZonePrintTest extends SequencedOpMode {
     public void onLoop() {
         driverControls.fieldCentricDrive();
     }
+    @Override
+    public boolean useDriverControls() {
+        return true;
+    }
 }
