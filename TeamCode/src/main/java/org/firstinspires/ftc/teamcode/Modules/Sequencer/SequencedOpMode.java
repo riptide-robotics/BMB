@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.firstinspires.ftc.teamcode.Robot;
 
 
@@ -21,6 +22,10 @@ public abstract class SequencedOpMode extends LinearOpMode {
 
     public SequencedTelemetry seqtele;
 
+    public DriverControls driverControls;
+
+    public EditablePose2D dest = null;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -28,6 +33,7 @@ public abstract class SequencedOpMode extends LinearOpMode {
         sequencer = new Sequencer();
         sequencer.tele = seqtele = new SequencedTelemetry(this);
         mtele = new MultipleTelemetry(telemetry);
+        driverControls = new DriverControls(robot, gamepad1);
 
         onStart();
 
@@ -41,6 +47,11 @@ public abstract class SequencedOpMode extends LinearOpMode {
             telemetry.update();
             mtele.update();
             seqtele.update();
+
+            if (useDriverControls()) {
+                if (dest == null) driverControls.fieldCentricDrive();
+                else driverControls.driveToPos(dest);
+            }
         }
         onStop();
     }
@@ -48,4 +59,19 @@ public abstract class SequencedOpMode extends LinearOpMode {
     public abstract void onStart();
     public abstract void onLoop();
     public void onStop() {};
+
+    public boolean useDriverControls() {
+        return false;
+    }
+
+    public void setDestination(EditablePose2D pose2D) {
+        dest = pose2D;
+    }
+
+    public EditablePose2D getDestination() {
+        return dest;
+    }
+    public void removeDestination() {
+        dest = null;
+    }
 }

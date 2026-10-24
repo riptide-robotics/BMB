@@ -20,7 +20,7 @@ public class LocPrintTest extends SequencedOpMode {
         sequencer.addSequence(dws);
 
         sequencer.addSequence(new FullLoopSequence((access) ->
-                telemetry.addData("Pose2D", dws.get().toString())));
+                seqtele.addData("Pose2D", dws.get().toString())));
     }
 
     @Override

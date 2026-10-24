@@ -19,7 +19,7 @@ public class ZonePrintTest extends SequencedOpMode {
         sequencer.addSequence(seq);
 
         sequencer.addSequence(new FullLoopSequence((accessor) -> {
-            telemetry.addData("Zones", seq.get());
+            seqtele.addData("Zones", seq.get());
         }));
     }
 
