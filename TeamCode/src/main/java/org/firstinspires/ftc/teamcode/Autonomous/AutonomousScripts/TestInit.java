@@ -23,9 +23,13 @@ public class TestInit extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1))
-                .add(new Waypoint(new EditablePose2D(0, 10, 0, DistanceUnit.INCH), 0, 1))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(0, 10, 0, DistanceUnit.INCH), 0, 1)
                 .build();
+
+        t.addData("1st Point: ", spline.get(0).fullyDefined());
+        t.addData("1st Point: ", spline.get(1).fullyDefined());
+        t.update();
 
         EditablePose2D pos1 = new EditablePose2D(0, 5, 0, DistanceUnit.INCH);
         EditablePose2D pos2 = new EditablePose2D(-1, 5, 0, DistanceUnit.INCH);

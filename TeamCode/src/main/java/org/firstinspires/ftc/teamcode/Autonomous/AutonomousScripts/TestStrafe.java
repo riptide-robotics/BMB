@@ -26,9 +26,9 @@ public class TestStrafe extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0))
-                .add(new Waypoint(new EditablePose2D(10, 0, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), -1, 0))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0)
+                .add(new EditablePose2D(10, 0, 0, DistanceUnit.INCH))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), -1, 0)
                 .build();
 
         robot = new Robot(hardwareMap);

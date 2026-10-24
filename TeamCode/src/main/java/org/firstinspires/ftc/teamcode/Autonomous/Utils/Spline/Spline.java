@@ -58,6 +58,7 @@ public class Spline {
 
     public Spline build() {
         numPoints = waypoints.size();
+
         definePoints();
         buildSegments();
         return this;
@@ -65,8 +66,8 @@ public class Spline {
 
     public void definePoints() {
         logNewLine("Define Points: ");
-        if(!waypoints.get(0).fullyDefined() || !waypoints.get(numPoints - 1).fullyDefined()) {
-            throw new IllegalStateException("Endpoints aren't fully defined");
+        if(!(waypoints.get(0).fullyDefined() && waypoints.get(numPoints - 1).fullyDefined())) {
+            throw new IllegalStateException("Endpoints aren't fully defined: \n" + print());
         }
 
         for(int i=0; i<numPoints; i++) {
@@ -274,5 +275,13 @@ public class Spline {
     public int getCurrentSegment() {
         return currentSegment;
     }
+
+    public Waypoint get(int index) {
+        if(index >= numPoints) {
+            throw new IllegalStateException("Out of range (" + index + " > " + (numPoints-1) + ")");
+        }
+        return waypoints.get(index);
+    }
+
 
 }
