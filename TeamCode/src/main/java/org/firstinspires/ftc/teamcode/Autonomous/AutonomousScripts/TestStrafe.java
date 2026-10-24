@@ -20,14 +20,15 @@ public class TestStrafe extends LinearOpMode {
     public Robot robot;
     private Spline spline;
     public static double slowdown;
+
     Telemetry t = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     @Override
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH)))
+                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0))
                 .add(new Waypoint(new EditablePose2D(10, 0, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH)))
+                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), -1, 0))
                 .build();
 
         robot = new Robot(hardwareMap);

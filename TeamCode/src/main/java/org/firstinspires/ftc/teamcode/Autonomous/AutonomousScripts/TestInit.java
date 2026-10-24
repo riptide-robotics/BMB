@@ -23,8 +23,8 @@ public class TestInit extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(0, 10, 0, DistanceUnit.INCH)))
+                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1))
+                .add(new Waypoint(new EditablePose2D(0, 10, 0, DistanceUnit.INCH), 0, 1))
                 .build();
 
         EditablePose2D pos1 = new EditablePose2D(0, 5, 0, DistanceUnit.INCH);
