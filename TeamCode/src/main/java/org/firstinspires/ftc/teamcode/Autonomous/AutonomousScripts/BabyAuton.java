@@ -36,8 +36,8 @@ public class BabyAuton extends LinearOpMode {
             if (timer.milliseconds() <= 500) {
                 flWheel.setPower(speed);
                 frWheel.setPower(-speed);
-                blWheel.setPower(speed);
-                brWheel.setPower(-speed);
+                blWheel.setPower(-speed);
+                brWheel.setPower(speed);
             }
             else {
                 flWheel.setPower(0);
