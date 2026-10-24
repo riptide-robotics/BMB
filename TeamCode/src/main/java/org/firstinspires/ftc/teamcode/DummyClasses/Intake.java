@@ -8,7 +8,8 @@ public class Intake {
     DcMotor intake;
     Servo intakeServo;
     public Intake (HardwareMap hardwareMap){
-        intake = hardwareMap.dcMotor.get("intake");
+        intake = hardwareMap.dcMotor.get("intakeMotor");
+
         intakeServo = hardwareMap.servo.get("intakeServo");
     }
 

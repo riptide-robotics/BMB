@@ -21,9 +21,13 @@ public class IntakeTuner extends LinearOpMode {
         while (opModeIsActive()){
             if (gamepad2.right_trigger > 0.1){
                 intake.setPower(power);
-            } else{
+            } else if (gamepad2.back){
+                intake.setPower(-power);
+            }
+            else{
                 intake.setPower(0);
             }
+
 
             intakeServo.setPosition(pos);
 

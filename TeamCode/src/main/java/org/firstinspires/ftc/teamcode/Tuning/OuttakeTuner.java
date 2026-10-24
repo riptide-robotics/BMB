@@ -23,12 +23,16 @@ public class OuttakeTuner extends LinearOpMode {
         while(opModeIsActive()){
             if (gamepad2.right_trigger > 0.1){
                 rightStingRay.setPower(powerR);
-            } else {
+            } else if (gamepad2.b){
+                rightStingRay.setPower(power);
+            } else{
                 rightStingRay.setPower(0);
             }
             if (gamepad2.left_trigger > 0.1){
                 leftStingRay.setPower(powerL);
-            } else {
+            } else if (gamepad2.b){
+                leftStingRay.setPower(power);
+            } else{
                 leftStingRay.setPower(0);
             }
 
