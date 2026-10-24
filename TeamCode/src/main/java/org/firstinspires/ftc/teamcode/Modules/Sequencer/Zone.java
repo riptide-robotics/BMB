@@ -85,7 +85,7 @@ public class Zone {
     public boolean botInZone() {
 
         boolean within = false;
-        Pose2D robotpos = robot.getDrivetrain().getCurrPos();
+        EditablePose2D robotpos = robot.getDrivetrain().getCurrPos();
 
         double xb = robotpos.getX(DistanceUnit.INCH);
         double yb = robotpos.getY(DistanceUnit.INCH);
