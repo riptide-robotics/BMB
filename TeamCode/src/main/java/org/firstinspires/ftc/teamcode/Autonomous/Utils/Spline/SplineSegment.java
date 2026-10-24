@@ -55,7 +55,7 @@ public class SplineSegment {
             c5 = 1e-12;
         }
 
-        SimpleMatrix norm_c = new SimpleMatrix(new double[]{c4, c3, c2, c1, c0}).divide(c5);
+        SimpleMatrix norm_c = new SimpleMatrix(new double[][]{{c4, c3, c2, c1, c0}}).divide(c5);
         SimpleMatrix C = new SimpleMatrix(new double[][]{
             {0, 0, 0, 0, -norm_c.get(4)},
             {1, 0, 0, 0, -norm_c.get(3)},
