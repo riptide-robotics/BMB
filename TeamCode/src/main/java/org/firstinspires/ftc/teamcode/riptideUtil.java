@@ -49,10 +49,10 @@ public class riptideUtil {
         return error;
     }
 
+    /** Intake */
 
-
-
-
+    double INTAKE_SERVO_POS = 0.12;
+    double INTAKE_SPEED = 0.85;
 
 
     /** HORIZONTAL SLIDE STUFF */
