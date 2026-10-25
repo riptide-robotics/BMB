@@ -27,29 +27,38 @@ public class TestInit extends LinearOpMode {
                 .add(new EditablePose2D(0, 10, 0, DistanceUnit.INCH), 0, 1)
                 .build();
 
-        t.addData("1st Point: ", spline.get(0).fullyDefined());
-        t.addData("1st Point: ", spline.get(1).fullyDefined());
-        t.update();
-
         EditablePose2D pos1 = new EditablePose2D(0, 5, 0, DistanceUnit.INCH);
         EditablePose2D pos2 = new EditablePose2D(-1, 5, 0, DistanceUnit.INCH);
 
         waitForStart();
 
         while(opModeIsActive()) {
-            t.addData("Spline: ", spline.print());
-            t.addData("Follow1: \n", stringFollowPrint(spline.follow(pos1)));
-            t.addData("Past Segment1: ", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5)));
-            t.addData("Follow2: \n", stringFollowPrint(spline.follow(pos2)));
-            t.addData("Past Segment2: ", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5)));
-            t.addData("Done", spline.done());
-            t.addData("Current Segment: ", spline.getCurrentSegment());
-            t.addData("Spline Log:\n", spline.getLog());
-            t.addData("\nSegment Log:\n", spline.getSegmentLog());
-            t.update();
+            print(pos1, pos2);
             spline.clearLog();
             spline.clearSegmentLog();
         }
+    }
+
+    public void print(EditablePose2D pos1, EditablePose2D pos2) {
+        t.addLine("Spline: ");
+        t.addLine(spline.print());
+        t.addData("Past Segment1", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5)));
+        t.addLine("Follow1: ");
+        t.addLine(stringFollowPrint(spline.follow(pos1)));
+
+        t.addData("Past Segment2", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5)));
+        t.addLine("Follow2: ");
+        t.addLine(stringFollowPrint(spline.follow(pos2)));
+
+        t.addData("Done", spline.done());
+        t.addData("Current Segment", spline.getCurrentSegment());
+        t.addLine();
+
+        t.addLine("Spline Log:");
+        t.addLine(spline.getLog());
+        t.addLine("Segment Log: ");
+        t.addLine(spline.getSegmentLog());
+        t.update();
     }
 
     public String stringFollowPrint(double[] follow) {

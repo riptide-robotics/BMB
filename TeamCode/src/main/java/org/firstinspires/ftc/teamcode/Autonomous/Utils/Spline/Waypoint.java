@@ -114,7 +114,7 @@ public class Waypoint extends EditablePose2D {
     }
 
     public double getAngle() {
-        return Math.atan2(velocityVectorX, velocityVectorY);
+        return Math.atan2(velocityVectorY, velocityVectorX);
     }
 
     public void setVelocityVectorY(double velocityVectorY) {

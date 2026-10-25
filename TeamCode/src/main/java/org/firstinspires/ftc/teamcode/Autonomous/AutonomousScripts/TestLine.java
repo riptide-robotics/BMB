@@ -48,13 +48,16 @@ public class TestLine extends LinearOpMode {
         while(opModeIsActive()) {
             double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos());
 
-            t.addData("Spline: ", spline.print());
-            t.addData("Follow: \n", stringFollowPrint(moveArray));
-            t.addData("Done", spline.done());
-            t.addData("Current Segment: ", spline.getCurrentSegment());
-            t.addData("Spline Log:\n", spline.getLog());
-            t.addData("\nSegment Log:\n", spline.getSegmentLog());
-            t.update();
+//            t.addData("Spline: ", spline.print());
+//            t.addData("Follow: \n", stringFollowPrint(moveArray));
+//            t.addData("Done", spline.done());
+//            t.addData("Current Segment: ", spline.getCurrentSegment());
+//            t.addData("Spline Log:\n", spline.getLog());
+//            t.addData("\nSegment Log:\n", spline.getSegmentLog());
+//            t.update();
+
+            print(moveArray);
+
             spline.clearLog();
             spline.clearSegmentLog();
 
@@ -80,6 +83,23 @@ public class TestLine extends LinearOpMode {
                 brWheelPower * slowdown,
                 blWheelPower * slowdown
         );
+    }
+
+    public void print(double[] moveArray) {
+        t.addLine("Spline: ");
+        t.addLine(spline.print());
+        t.addLine("Follow: ");
+        t.addLine(stringFollowPrint(moveArray));
+
+        t.addData("Done", spline.done());
+        t.addData("Current Segment", spline.getCurrentSegment());
+        t.addLine();
+
+        t.addLine("Spline Log:");
+        t.addLine(spline.getLog());
+        t.addLine("Segment Log: ");
+        t.addLine(spline.getSegmentLog());
+        t.update();
     }
 
     public String stringFollowPrint(double[] follow) {

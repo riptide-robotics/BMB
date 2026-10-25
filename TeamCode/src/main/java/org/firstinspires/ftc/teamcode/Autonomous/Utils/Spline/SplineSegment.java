@@ -78,20 +78,21 @@ public class SplineSegment {
                 double temp = eigenvalue.getReal();
                 double pointX = getX(temp);
                 double pointY = getY(temp);
-                if(closestPoint == null || dist(closestPoint[0], closestPoint[1], pointX, pointY) < closestDist) {
+                if(closestPoint == null || dist(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pointX, pointY) < closestDist) {
                     closestPoint = new double[]{pointX, pointY};
-                    closestDist = dist(closestPoint[0], closestPoint[1], pointX, pointY);
+                    closestDist = dist(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pointX, pointY);
                     t = temp;
+//                    log("   new closest pt: {x: ", closestPoint[0]);
+//                    log(", y: ", closestPoint[1]);
+//                    logNewLine("}");
+//                    logNewLine("   dist: ", closestDist);
+//                    logNewLine("   u: ", t);
+//                    lineBreak();
                 }
-                log("   new closest pt: {x: ", closestPoint[0]);
-                log(", y: ", closestPoint[1]);
-                logNewLine("}");
-                logNewLine("   dist: ", closestDist);
-                logNewLine("   u: ", t);
-                lineBreak();
             }
         }
         if (closestPoint == null) {
+            logNewLine("   No point corresponding found.");
             return new double[]{
                     1.0,
                     endPoint.getX(DistanceUnit.INCH),
@@ -104,6 +105,14 @@ public class SplineSegment {
                     )
             };
         }
+
+        log("   closest pt: {x: ", closestPoint[0]);
+        log(", y: ", closestPoint[1]);
+        logNewLine("}");
+        logNewLine("   dist: ", closestDist);
+        logNewLine("   u: ", t);
+        lineBreak();
+
         return new double[]{t, closestPoint[0], closestPoint[1], closestDist};
     }
 
@@ -132,11 +141,12 @@ public class SplineSegment {
 
         // so no divide by 0
         if (cubeSpeed < 1e-12) {
+            logNewLine("   no curvature (straight line).", cubeSpeed);
             return 0.0;
         }
 
         logNewLine("   curvature val: ", crossProduct / cubeSpeed);
-        lineBreak();
+        //lineBreak();
 
         return crossProduct / cubeSpeed;
     }
@@ -162,7 +172,7 @@ public class SplineSegment {
         double x = h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
 
         logNewLine("         x val: ", x);
-        lineBreak();
+        //lineBreak();
 
         return x;
     }
@@ -179,7 +189,7 @@ public class SplineSegment {
         double y = h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
 
         logNewLine("         y val: ", y);
-        lineBreak();
+        //lineBreak();
 
         return y;
     }
@@ -195,7 +205,7 @@ public class SplineSegment {
         double slope = h1 * startPoint.getX(DistanceUnit.INCH) + h2 * endPoint.getX(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorX() + h4 * endPoint.getVelocityVectorX();
 
         logNewLine("         SlopeX: ", slope);
-        lineBreak();
+        //lineBreak();
 
         return slope;
     }
@@ -211,7 +221,7 @@ public class SplineSegment {
         double slope = h1 * startPoint.getY(DistanceUnit.INCH) + h2 * endPoint.getY(DistanceUnit.INCH) + h3 * startPoint.getVelocityVectorY() + h4 * endPoint.getVelocityVectorY();
 
         logNewLine("         SlopeY: ", slope);
-        lineBreak();
+        //lineBreak();
 
         return slope;
     }
@@ -266,6 +276,22 @@ public class SplineSegment {
     public Waypoint getEndPoint() {
         logNewLine("End pt: " + endPoint.toString());
         lineBreak();
+        return endPoint;
+    }
+
+    public Waypoint getStartPoint(boolean log) {
+        if (log) {
+            logNewLine("Start pt: " + startPoint.toString());
+            lineBreak();
+        }
+        return startPoint;
+    }
+
+    public Waypoint getEndPoint(boolean log) {
+        if (log) {
+            logNewLine("End pt: " + endPoint.toString());
+            lineBreak();
+        }
         return endPoint;
     }
 
