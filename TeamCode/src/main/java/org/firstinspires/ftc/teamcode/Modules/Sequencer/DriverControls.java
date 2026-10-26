@@ -18,6 +18,9 @@ public class DriverControls {
     }
 
     public void fieldCentricDrive(){
+
+        if (robot.getDrivetrain() == null) return; //wait until it is initialized
+
         double slowdown = gamepad.right_trigger > 0 ? 0.25 : 1.0;
         double y = -gamepad.right_stick_y * slowdown;
         double x = gamepad.right_stick_x * 1.1 * slowdown;

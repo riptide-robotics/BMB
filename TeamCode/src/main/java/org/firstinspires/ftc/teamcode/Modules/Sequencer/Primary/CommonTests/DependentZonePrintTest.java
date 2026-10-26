@@ -13,23 +13,22 @@ import java.util.List;
 @TeleOp(name = "DependentZonePrintTest", group = "Sequencer Tests")
 public class DependentZonePrintTest extends SequencedOpMode {
 
-    DataWatcherSequence<List<Zones>> seq = new DataWatcherSequence<>(() -> Zones.getRobotZones(robot), List.class);
+//    DataWatcherSequence<List<Zones>> seq = new DataWatcherSequence<>(() -> Zones.getRobotZones(robot), List.class);
 
-    DriverControls driverControls;
 
     @Override
     public void onStart() {
-        sequencer.addSequence(seq);
-
-        sequencer.addSequence(new FullLoopSequence((accessor) -> {
-            if (gamepad1.b)
-                seqtele.addData("Zones", seq.get());
-        }));
+//        sequencer.addSequence(seq);
+//
+//        sequencer.addSequence(new FullLoopSequence((accessor) -> {
+//            if (gamepad1.b)
+//                seqtele.addData("Zones", seq.get());
+//        }));
     }
 
     @Override
     public void onLoop() {
-        driverControls.fieldCentricDrive();
+
     }
     @Override
     public boolean useDriverControls() {

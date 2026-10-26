@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.firstinspires.ftc.teamcode.Robot;
 
@@ -26,6 +27,10 @@ public abstract class SequencedOpMode extends LinearOpMode {
 
     public EditablePose2D dest = null;
 
+    EditablePose2D pose = null;
+
+    public DistanceUnit distunit = DistanceUnit.INCH;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -42,16 +47,29 @@ public abstract class SequencedOpMode extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            if (useDriverControls() && pose == null) { try {
+                pose = robot.getDrivetrain().getCurrPos();
+            } catch (Exception e) {
+                seqtele.addData("Pose could not be initialized", e.getMessage());
+            }}
+
+            else if (!useDriverControls() && pose != null) pose = null;
+
+
+            if (useDriverControls()) {
+                if (dest == null) driverControls.fieldCentricDrive();
+                else driverControls.driveToPos(dest);
+                if (pose != null)
+                    seqtele.addData("Pose", "X:" + pose.getX(distunit) + ", Y:" + pose.getY(distunit) +  ", Z:" + pose.getH());
+                else seqtele.addData("Pose", "null");
+            }
+            seqtele.addData("drivercontrols", driverControls != null);
+
             sequencer.iterate();
             onLoop();
             telemetry.update();
             mtele.update();
             seqtele.update();
-
-            if (useDriverControls()) {
-                if (dest == null) driverControls.fieldCentricDrive();
-                else driverControls.driveToPos(dest);
-            }
         }
         onStop();
     }

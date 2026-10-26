@@ -47,7 +47,5 @@ public class BasicTuner extends SequencedOpMode {
         }
 
         motor.setPower(pid.calculate(current,goal) * k);
-
-
     }
 }
