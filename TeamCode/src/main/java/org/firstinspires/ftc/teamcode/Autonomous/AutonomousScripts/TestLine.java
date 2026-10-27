@@ -67,6 +67,7 @@ public class TestLine extends LinearOpMode {
 
     private void fieldCentricDrive(double y, double x, double rx) {
         double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
+        //double heading = robot.getDrivetrain().getCurrPos().getH();
 
         double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
         double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);

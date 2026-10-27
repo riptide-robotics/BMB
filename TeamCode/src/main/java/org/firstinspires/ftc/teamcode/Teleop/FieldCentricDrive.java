@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Robot;
 
-@TeleOp(name = "AAAaaAAAAaaaAA")
+@TeleOp(name = "Field Centric Drive")
 public class FieldCentricDrive extends LinearOpMode {
 
     public Robot robot;
@@ -27,6 +27,7 @@ public class FieldCentricDrive extends LinearOpMode {
 
         while (opModeIsActive()){
             fieldCentricDrive();
+            print();
         }
     }
 
@@ -54,5 +55,14 @@ public class FieldCentricDrive extends LinearOpMode {
         if (gamepad1.y) {
             robot.getDrivetrain().resetImu();
         }
+    }
+
+    private void print() {
+        telemetry.addData("Left Stick x:", gamepad1.left_stick_x);
+        telemetry.addData("Left Stick y:", gamepad1.left_stick_y);
+        telemetry.addData("Right Stick x:", gamepad1.right_stick_x);
+        telemetry.addData("Heading IMU:", robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
+        telemetry.addData("Heading Pinpoint:", robot.getDrivetrain().getCurrPos().getH());
+        telemetry.update();
     }
 }

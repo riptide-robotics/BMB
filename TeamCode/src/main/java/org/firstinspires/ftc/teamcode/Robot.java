@@ -6,15 +6,14 @@ import org.firstinspires.ftc.teamcode.Modules.Drivetrain;
 import org.firstinspires.ftc.teamcode.Modules.Utils.GoBildaPinpointDriver;
 
 public class Robot {
-    HardwareMap hardwareMap;
-    Drivetrain drivetrain = null;
+    Drivetrain drivetrain;
     public Robot (HardwareMap map){
-        hardwareMap = map;
-        if (map.tryGet(GoBildaPinpointDriver.class,"odo") != null) drivetrain = new Drivetrain(map);
+        drivetrain = new Drivetrain(map);
+        drivetrain.resetImu();
+        //if (map.tryGet(GoBildaPinpointDriver.class,"pinpoint") != null) drivetrain = new Drivetrain(map);
     }
 
     public Drivetrain getDrivetrain(){
-
         return drivetrain;
     }
 }
