@@ -27,4 +27,8 @@ public class ZonePrintTest extends SequencedOpMode {
     public void onLoop() {
 
     }
+    @Override
+    public boolean useDriverControls() {
+        return true;
+    }
 }

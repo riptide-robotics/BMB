@@ -3,22 +3,20 @@ package org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.CommonTests;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.TimedSequenceBase;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.FullLoopSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.ObstructiveSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.OrderedSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.SequencedOpMode;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Zones;
+import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 
 @TeleOp(name = "ZoneBehaviorTest", group = "Sequencer Tests")
 public class ZoneBehaviorTest extends SequencedOpMode {
 
 
-    //TODO dunno what they are named - fix this when i get them
-    DcMotor drive1 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive2 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive3 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive4 = hardwareMap.dcMotor.get("Drive1");
+
 
     OrderedSequence seq;
 
@@ -37,10 +35,7 @@ public class ZoneBehaviorTest extends SequencedOpMode {
 
     @Override
     public void onLoop() {
-        drive1.setPower(gamepad1.left_stick_y);
-        drive2.setPower(gamepad1.left_stick_y);
-        drive3.setPower(gamepad1.left_stick_x);
-        drive4.setPower(gamepad1.left_stick_x);
+
 
         if (seq.end) {
             sequencer.addSequence(seq = construct());
@@ -51,25 +46,21 @@ public class ZoneBehaviorTest extends SequencedOpMode {
     public OrderedSequence construct() {
         return new OrderedSequence.OrderedSeqConstructor(() -> new OrderedSequence()
 
-                .add(new ObstructiveSequence(() -> {
-                    return !Zones.getRobotZones(robot).isEmpty();
-                }))
+                .add(new ObstructiveSequence(() -> !Zones.getRobotZones(robot).isEmpty()))
 
                 .add(new TimedSequenceBase((a) -> {
-                    drive1.setPower(0.8);
-                    drive2.setPower(0.8);
-                    drive3.setPower(0.8);
-                    drive4.setPower(0.8);
+                    setDestination(new EditablePose2D(10, 10, 0, DistanceUnit.INCH));
                 },1000))
 
                 .add(new TimedSequenceBase((a) -> {
-                    drive1.setPower(0.8);
-                    drive2.setPower(0.8);
-                    drive3.setPower(-0.8);
-                    drive4.setPower(-0.8);
-                },1000))
+                    setDestination(new EditablePose2D(-10, -10, 0, DistanceUnit.INCH));
+                },5000))
 
 
         ).construct();
+    }
+    @Override
+    public boolean useDriverControls() {
+        return true;
     }
 }

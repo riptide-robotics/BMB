@@ -13,10 +13,6 @@ import java.util.List;
 @TeleOp(name = "ZoneOpModeTest", group = "Sequencer Tests")
 public class ZoneOpModeTest extends SequencedOpMode {
 
-    DcMotor drive1 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive2 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive3 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive4 = hardwareMap.dcMotor.get("Drive1");
 
 
     DataWatcherSequence dws = new DataWatcherSequence<>(
@@ -40,9 +36,10 @@ public class ZoneOpModeTest extends SequencedOpMode {
 
     @Override
     public void onLoop() {
-        drive1.setPower(gamepad1.left_stick_y);
-        drive2.setPower(gamepad1.left_stick_y);
-        drive3.setPower(gamepad1.left_stick_x);
-        drive4.setPower(gamepad1.left_stick_x);
+
+    }
+    @Override
+    public boolean useDriverControls() {
+        return true;
     }
 }
