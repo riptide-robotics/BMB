@@ -13,6 +13,8 @@ public class Spline {
     private int numPoints;
     private String log;
 
+    public static double KC = 0.99;
+
     public Spline(SplineBuilder s) {
         this.waypoints = s.getPath();
         this.segments = new ArrayList<>();
@@ -132,28 +134,13 @@ public class Spline {
         lineBreak();
     }
 
-    public double[] follow(EditablePose2D pos) {
+    public double[] follow(EditablePose2D pos, double heading) {
         logNewLine("Follow: ");
 
         if(done()) {
             logNewLine("   done.");
             return new double[]{0.0, 0.0, 0.0};
         }
-
-        boolean pastSeg = pastSegment(
-            pos,
-            SplineSegment.dist(
-                    segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH),
-                    segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH),
-                    pos.getX(DistanceUnit.INCH),
-                    pos.getY(DistanceUnit.INCH)
-            )
-        );
-        logNewLine("   Past Segment: ", pastSeg);
-        if(pastSeg) {currentSegment++;}
-
-        logNewLine("   done: ", done());
-        if(done()) {return new double[]{0.0, 0.0, 0.0, 0.0};}
 
         // get corresponding point
         double[] correspondingPoint = segments.get(currentSegment).getCorrespondingPoint(pos);
@@ -162,19 +149,32 @@ public class Spline {
         log(", ", correspondingPoint[2]);
         logNewLine("}");
 
+        boolean pastSeg = pastSegment(
+                pos,
+                correspondingPoint[0]
+//                SplineSegment.dist(
+//                        segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH),
+//                        segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH),
+//                        pos.getX(DistanceUnit.INCH),
+//                        pos.getY(DistanceUnit.INCH)
+//                )
+        );
+        logNewLine("   Past Segment: ", pastSeg);
+        if(pastSeg) {currentSegment++;}
+
         // get curvature of point
         double curvature = segments.get(currentSegment).getCurvature(correspondingPoint[0]);
-        double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / curvature);
+        double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / (1 + KC * Math.abs(curvature)));
         logNewLine("   Curvature Factor: ", curvatureFactor);
 
         // dx and dy
         double dx = correspondingPoint[1] - pos.getX(DistanceUnit.INCH);
         double dy = correspondingPoint[2] - pos.getY(DistanceUnit.INCH);
 
-        if (dx < 1e-12) {
+        if (Math.abs(dx) < 1e-12) {
             dx = 0.0;
         }
-        if (dy < 1e-12) {
+        if (Math.abs(dy) < 1e-12) {
             dy = 0.0;
         }
 
@@ -191,40 +191,43 @@ public class Spline {
 
         double[] curvatureForce = new double[] {-Math.cos(forwardAngle) * curvatureFactor, -Math.sin(forwardAngle) * curvatureFactor};
 
-        double[] crossTrackForce = new double[] {Math.clamp(dx * Math.sqrt(5 / correspondingPoint[3]), -1, 1), Math.clamp(dy * Math.sqrt(5 / correspondingPoint[3]), -1, 1)};
+        double[] crossTrackForce = new double[] {Math.clamp(dx * Math.sqrt(correspondingPoint[3] / 5), -1, 1), Math.clamp(dy * Math.sqrt(correspondingPoint[3] / 5), -1, 1)};
 
         // return the net force and rotation or wheel powers, need to decide
         double netForceX = forwardForce[0] + curvatureForce[0] + crossTrackForce[0];
         double netForceY = forwardForce[1] + curvatureForce[1] + crossTrackForce[1];
         double netForceAngle = Math.atan2(netForceY, netForceX);
 
-        double[] netForce = new double[]{netForceX * Math.cos(netForceAngle), netForceY * Math.sin(netForceY)};
-        double netMagnitude = SplineSegment.dist(0, 0, netForce[0], netForce[1]);
+        double[] netForce = new double[]{netForceX * Math.cos(netForceAngle), netForceY * Math.sin(netForceAngle)};
+        double netMagnitude = Math.hypot(netForce[0], netForce[1]);
+
+        double goalAngle = segments.get(currentSegment).getStartPoint(false).getH() +
+                (segments.get(currentSegment).getEndPoint(false).getH() - segments.get(currentSegment).getStartPoint(false).getH()) * correspondingPoint[0];
+        double rotationForce = (goalAngle - heading) / (1000);
+
+        if (netMagnitude < 1e-12) {return new double[]{0.0, 0.0, rotationForce};}
 
         log("   Net Force: {", netForce[0] / netMagnitude);
         log(", ", netForce[1] / netMagnitude);
         log(", ", netForceAngle);
         logNewLine(" rad}; magnitude: ", netMagnitude);
 
-        double goalAngle = segments.get(currentSegment).getStartPoint(false).getH() +
-                (segments.get(currentSegment).getEndPoint(false).getH() - segments.get(currentSegment).getStartPoint(false).getH()) * correspondingPoint[0];
-
         lineBreak();
-        if (netForce[0] / netMagnitude < 1e-12) {
+        if (Math.abs(netForce[0] / netMagnitude) < 1e-12) {
             netForce[0] = 0.0;
         }
 
-        if (netForce[1] / netMagnitude < 1e-12) {
+        if (Math.abs(netForce[1] / netMagnitude) < 1e-12) {
             netForce[1] = 0.0;
         }
 
-        return new double[] {netForce[0] / netMagnitude, netForce[1] / netMagnitude, (goalAngle - pos.getH()) / (Math.PI / 4)};
+        return new double[] {netForce[0] / netMagnitude, netForce[1] / netMagnitude, rotationForce};
     }
 
-    public boolean pastSegment(EditablePose2D pos, double dist) {
+    public boolean pastSegment(EditablePose2D pos, double u) {
         logNewLine("   Past Segment: ");
-        logNewLine("      Too Far: ", dist > 5);
-        if (dist > 5 || done()) {return false;}
+        logNewLine("      Too Far: ", u < 0.95);
+        if (u < 0.95 || done()) {return false;}
         double angleCutoff = segments.get(currentSegment).getEndPoint(false).getAngle(); // need to get perpendicular for line of passing to next seg
         double perpendicular = angleCutoff + (Math.PI / 2);
 
@@ -233,6 +236,14 @@ public class Spline {
 
         double dx = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH);
         double dy = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH);
+
+        if (Math.abs((perpendicular - Math.PI / 2) % (Math.PI)) < 1e-12) {
+            double directionSpline = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getX(DistanceUnit.INCH);
+            if(directionSpline >= 0) {
+                return dx <= 0;
+            }
+            return dx >= 0;
+        }
 
         log("      Dist Endpt: {", dx);
         log(", ", dy);

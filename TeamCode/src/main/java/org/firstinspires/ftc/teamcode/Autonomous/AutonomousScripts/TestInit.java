@@ -44,11 +44,11 @@ public class TestInit extends LinearOpMode {
         t.addLine(spline.print());
         t.addData("Past Segment1", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5)));
         t.addLine("Follow1: ");
-        t.addLine(stringFollowPrint(spline.follow(pos1)));
+        t.addLine(stringFollowPrint(spline.follow(pos1, 0)));
 
         t.addData("Past Segment2", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5)));
         t.addLine("Follow2: ");
-        t.addLine(stringFollowPrint(spline.follow(pos2)));
+        t.addLine(stringFollowPrint(spline.follow(pos2, 0)));
 
         t.addData("Done", spline.done());
         t.addData("Current Segment", spline.getCurrentSegment());

@@ -47,7 +47,7 @@ public class TestFB extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
-            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos());
+            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
 
 //            t.addData("Spline: ", spline.print());
 //            t.addData("Follow: \n", stringFollowPrint(moveArray));

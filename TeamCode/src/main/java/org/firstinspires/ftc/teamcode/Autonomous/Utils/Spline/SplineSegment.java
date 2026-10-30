@@ -76,6 +76,7 @@ public class SplineSegment {
 
             if (eigenvalue.isReal()) {
                 double temp = eigenvalue.getReal();
+                if (temp < 0 || temp > 1) {continue;}
                 double pointX = getX(temp);
                 double pointY = getY(temp);
                 if(closestPoint == null || dist(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pointX, pointY) < closestDist) {

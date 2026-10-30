@@ -25,14 +25,13 @@ public class TestLine extends LinearOpMode {
     Telemetry t = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     @Override
     public void runOpMode() throws InterruptedException {
-
         spline = new Spline.SplineBuilder()
                 .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
-                .add(new EditablePose2D(0, 10, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(10, 0, 0, DistanceUnit.INCH), 0, 1)
                 .build();
 
         robot = new Robot(hardwareMap);
-
+        robot.getDrivetrain().startOdometry();
         slowdown = 0.5;
 
         t.addData("Robot status", "succesfully initiated");
@@ -46,15 +45,7 @@ public class TestLine extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
-            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos());
-
-//            t.addData("Spline: ", spline.print());
-//            t.addData("Follow: \n", stringFollowPrint(moveArray));
-//            t.addData("Done", spline.done());
-//            t.addData("Current Segment: ", spline.getCurrentSegment());
-//            t.addData("Spline Log:\n", spline.getLog());
-//            t.addData("\nSegment Log:\n", spline.getSegmentLog());
-//            t.update();
+            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
 
             print(moveArray);
 
@@ -65,7 +56,7 @@ public class TestLine extends LinearOpMode {
         }
     }
 
-    private void fieldCentricDrive(double y, double x, double rx) {
+    private void fieldCentricDrive(double x, double y, double rx) {
         double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
         //double heading = robot.getDrivetrain().getCurrPos().getH();
 
@@ -87,6 +78,15 @@ public class TestLine extends LinearOpMode {
     }
 
     public void print(double[] moveArray) {
+        EditablePose2D pos = robot.getDrivetrain().getCurrPos();
+
+        t.addLine("Robot Pos: {x: " +
+                pos.getX(DistanceUnit.INCH) + ", y: " +
+                pos.getY(DistanceUnit.INCH) + ", h: " +
+                robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS) + "};"
+        );
+        t.addLine();
+
         t.addLine("Spline: ");
         t.addLine(spline.print());
         t.addLine("Follow: ");
