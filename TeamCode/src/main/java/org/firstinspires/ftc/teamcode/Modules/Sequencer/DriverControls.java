@@ -17,22 +17,22 @@ public class DriverControls {
         this.gamepad = gamepad;
     }
 
-    public void fieldCentricDrive(){
+    public void fieldCentricDrive() {
 
-        if (robot.getDrivetrain() == null) return; //wait until it is initialized
+        if (robot.getDrivetrain() == null) return;
 
-        double slowdown = gamepad.right_trigger > 0 ? 0.25 : 1.0;
-        double y = -gamepad.right_stick_y * slowdown;
-        double x = gamepad.right_stick_x * 1.1 * slowdown;
-        double rx = gamepad.left_stick_x * slowdown;
+        double slowdown = gamepad.right_trigger > 0 ? 0.25 : 1;
+        double y = -gamepad.left_stick_y * slowdown; // forward
+        double x = gamepad.left_stick_x * 1.1 * slowdown; // strafe
+        double rx = gamepad.right_stick_x * slowdown; // rotation
 
         double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
 
-        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
         double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
 
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1.0);
-        double frWheelPower = (rotY - rotX - rx) / denominator;
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
         double flWheelPower = (rotY + rotX + rx) / denominator;
         double brWheelPower = (rotY + rotX - rx) / denominator;
         double blWheelPower = (rotY - rotX + rx) / denominator;

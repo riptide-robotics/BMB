@@ -64,6 +64,11 @@ public class Zone {
     public Zone(String name, Double[][] coords) {
         int err = 0;
 
+        if (coords.length < 3)
+            throw new IllegalArgumentException("Zone " + name + "doesn't have enough points! Make sure they form a polygon.");
+
+        pos = new EditablePose2D[coords.length];
+
         for (int i = 0; i < coords.length; i++) {
             if (coords[i].length != 2) {
                 err++;
@@ -73,7 +78,6 @@ public class Zone {
         }
 
         if (err > 0) throw new IllegalArgumentException("Zone " + name + "has invalid coordinates! " + err + (err == 1 ? "coordinate":"coordinates") + " has incorrect. ");
-        throw new IllegalArgumentException("Zone " + name + "doesn't have enough points! Make sure they form a polygon.");
     }
 
 

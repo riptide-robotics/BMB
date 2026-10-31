@@ -19,21 +19,26 @@ public class OrderedSequence extends SequenceBase {
     Iterator<SequenceBase> iterate;
     SequenceBase currBase = null;
 
+    int step = 0;
+
     public OrderedSequence() {
         super((a) -> {}); //has to be edited after constructed lol
         iterate = sequenceBaseStream.iterator();
         this.runnable = (a) -> {
             if (currBase == null) currBase = iterate.next();
 
-
             if (!(currBase.canExecute = currBase.iterationLoop())) return;
 
             currBase.run();
 
             if (currBase.end) {
-                if (iterate.hasNext())
+                if (iterate.hasNext()) {
                     currBase = iterate.next();
-                else end = true;
+                    step++;
+                } else {
+                    end = true;
+                    step = -1;
+                }
             }
 
 
@@ -70,6 +75,10 @@ public class OrderedSequence extends SequenceBase {
     public void resetPosition() {
         sequenceBaseStream = sequences.stream();
         iterate = sequenceBaseStream.iterator();
+    }
+
+    public int getStep() {
+        return step;
     }
 
     @Override

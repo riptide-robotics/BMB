@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.CommonTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.DataWatcherSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.FullLoopSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.RepeatedSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Zones;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ public class ZoneOpModeTest extends SequencedOpMode {
 
 
 
-    DataWatcherSequence dws = new DataWatcherSequence<>(
-            () -> robot.getDrivetrain().getCurrPos(),
+    DataWatcherSequence<List<Zones>> dws = new DataWatcherSequence<>(
+            () -> Zones.getRobotZones(robot),
             List.class
     );
 

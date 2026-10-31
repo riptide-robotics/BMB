@@ -40,6 +40,8 @@ public abstract class SequencedOpMode extends LinearOpMode {
         mtele = new MultipleTelemetry(telemetry);
         driverControls = new DriverControls(robot, gamepad1);
 
+        robot.getDrivetrain().startOdometry();
+
         onStart();
 
         if (isStopRequested()) return;
@@ -60,7 +62,7 @@ public abstract class SequencedOpMode extends LinearOpMode {
                 if (dest == null) driverControls.fieldCentricDrive();
                 else driverControls.driveToPos(dest);
                 if (pose != null)
-                    seqtele.addData("Pose", "X:" + pose.getX(distunit) + ", Y:" + pose.getY(distunit) +  ", Z:" + pose.getH());
+                    seqtele.addData("Pose", "X:" + Math.round(pose.getX(distunit)*100)/100 + ", Y:" + Math.round(pose.getY(distunit)*100)/100 +  ", Z:" + Math.round(pose.getH()*100)/100);
                 else seqtele.addData("Pose", "null");
             }
             seqtele.addData("drivercontrols", driverControls != null);

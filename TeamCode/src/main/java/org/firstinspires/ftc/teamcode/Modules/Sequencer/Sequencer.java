@@ -9,6 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Sequencer is the primary system for every sequence. There are several types of sequences that this may run,
+ * and more types of sequences can be created as the user desires. <br>
+ * Please note that a sequence can only be added once. If it removes itself from the queue, adding it back may
+ * cause unintended side effects. If you want to run a sequence again, it is recommended to create a lambda
+ * factory for that sequence to be used each time it is added to the sequence.
+ * */
 public class Sequencer {
     public Telemetry tele = null;
 

@@ -23,10 +23,8 @@ public class ZoneBehaviorTest extends SequencedOpMode {
     @Override
     public void onStart() {
         sequencer.addSequence(new FullLoopSequence(a -> {
-            if (gamepad1.a) gamepad1.rumble(1000);
-            if (gamepad1.b) gamepad1.rumble(5000);
-
-            telemetry.addData("Zones", Zones.getRobotZones(robot));
+            seqtele.addData("Zones", Zones.getRobotZones(robot));
+            seqtele.addData("Stage", seq.getStep());
         }));
 
         sequencer.addSequence(seq = construct());
@@ -49,11 +47,11 @@ public class ZoneBehaviorTest extends SequencedOpMode {
                 .add(new ObstructiveSequence(() -> !Zones.getRobotZones(robot).isEmpty()))
 
                 .add(new TimedSequenceBase((a) -> {
-                    setDestination(new EditablePose2D(10, 10, 0, DistanceUnit.INCH));
+                    gamepad1.rumble(1000); //pretty sure gamepad doesn't have a rumble
                 },1000))
 
                 .add(new TimedSequenceBase((a) -> {
-                    setDestination(new EditablePose2D(-10, -10, 0, DistanceUnit.INCH));
+                    gamepad1.rumble(5000);
                 },5000))
 
 

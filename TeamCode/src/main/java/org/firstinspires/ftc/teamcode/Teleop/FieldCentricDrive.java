@@ -36,7 +36,7 @@ public class FieldCentricDrive extends LinearOpMode {
     private void fieldCentricDrive() {
         double slowdown = gamepad1.right_trigger > 0 ? 0.25 : 1;
         double y = -gamepad1.left_stick_y * slowdown; // forward
-        double x = gamepad1.left_stick_x * 1.1 * slowdown; // straff
+        double x = gamepad1.left_stick_x * 1.1 * slowdown; // strafe
         double rx = gamepad1.right_stick_x * slowdown; // rotation
 
         double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
