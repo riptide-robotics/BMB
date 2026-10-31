@@ -235,6 +235,10 @@ public class Spline {
         log(", ", dy);
         logNewLine("}");
 
+        return getForces(correspondingPoint, curvatureFactor, dx, dy, heading);
+    }
+
+    private double[] getForces(double[] correspondingPoint, double curvatureFactor, double dx, double dy, double heading) {
         // find all the forces (3) on the robot
         double forwardAngle = Math.atan2(
                 segments.get(currentSegment).getSlopeY(correspondingPoint[0]),
