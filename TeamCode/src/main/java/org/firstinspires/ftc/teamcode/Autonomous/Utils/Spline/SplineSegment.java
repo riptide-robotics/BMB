@@ -10,6 +10,8 @@ public class SplineSegment {
     // ----- Instance Vars ----- //
     private Waypoint startPoint;
     private Waypoint endPoint;
+    private boolean continuousRotation;
+    private boolean continuousSpeed;
     private String log;
 
     // ----- Constructor ---- //
@@ -17,6 +19,14 @@ public class SplineSegment {
     public SplineSegment(Waypoint startPoint, Waypoint endPoint) {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
+        this.log = "";
+    }
+
+    public SplineSegment(Waypoint startPoint, Waypoint endPoint, boolean continuousRotation, boolean continuousSpeed) {
+        this.startPoint = startPoint;
+        this.endPoint = endPoint;
+        this.continuousRotation = continuousRotation;
+        this.continuousSpeed = continuousSpeed;
         this.log = "";
     }
 
@@ -296,12 +306,28 @@ public class SplineSegment {
         return endPoint;
     }
 
+    public boolean isContinuousRotation() {
+        return continuousRotation;
+    }
+
+    public boolean isContinuousSpeed() {
+        return continuousSpeed;
+    }
+
     public void setStartPoint(Waypoint startPoint) {
         this.startPoint = startPoint;
     }
 
     public void setEndPoint(Waypoint endPoint) {
         this.endPoint = endPoint;
+    }
+
+    public void setContinuousRotation(boolean continuousRotation) {
+        this.continuousRotation = continuousRotation;
+    }
+
+    public void setContinuousSpeed(boolean continuousSpeed) {
+        this.continuousSpeed = continuousSpeed;
     }
 
     // ----- Helpers ----- //

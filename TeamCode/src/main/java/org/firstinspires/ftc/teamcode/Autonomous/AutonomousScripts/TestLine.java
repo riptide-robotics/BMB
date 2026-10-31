@@ -26,8 +26,8 @@ public class TestLine extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         spline = new Spline.SplineBuilder()
-                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
-                .add(new EditablePose2D(10, 0, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0)
+                .add(new EditablePose2D(10, 0, 0, DistanceUnit.INCH), 1, 0)
                 .build();
 
         robot = new Robot(hardwareMap);
@@ -45,6 +45,11 @@ public class TestLine extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
+            t.addData("Goal X1", 0);
+            t.addData("Goal Y1", 0);
+            t.addData("Goal X2", 10);
+            t.addData("Goal Y2", 0);
+
             double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
 
             print(moveArray);
@@ -80,12 +85,10 @@ public class TestLine extends LinearOpMode {
     public void print(double[] moveArray) {
         EditablePose2D pos = robot.getDrivetrain().getCurrPos();
 
-        t.addLine("Robot Pos: {x: " +
-                pos.getX(DistanceUnit.INCH) + ", y: " +
-                pos.getY(DistanceUnit.INCH) + ", h: " +
-                robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS) + "};"
-        );
-        t.addLine();
+        t.addData("Robot Pos: {x: ", pos.getX(DistanceUnit.INCH));
+        t.addData(", y: ", pos.getY(DistanceUnit.INCH));
+        t.addData(", h: ", robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
+        t.addLine("};");
 
         t.addLine("Spline: ");
         t.addLine(spline.print());

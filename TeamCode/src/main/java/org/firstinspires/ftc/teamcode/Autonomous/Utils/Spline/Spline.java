@@ -8,6 +8,8 @@ import java.util.ArrayList;
 public class Spline {
 
     private ArrayList<Waypoint> waypoints;
+    private ArrayList<Boolean> contiuousRotation;
+    private ArrayList<Boolean> contiuousSpeed;
     private ArrayList<SplineSegment> segments;
     private int currentSegment = 0;
     private int numPoints;
@@ -17,6 +19,8 @@ public class Spline {
 
     public Spline(SplineBuilder s) {
         this.waypoints = s.getPath();
+        this.contiuousRotation = s.getContinuousRotation();
+        this.contiuousSpeed = s.getContinuousSpeed();
         this.segments = new ArrayList<>();
         this.log = "";
         build();
@@ -24,28 +28,62 @@ public class Spline {
 
     public static class SplineBuilder {
         private ArrayList<Waypoint> waypoints = new ArrayList<Waypoint>();
+        private ArrayList<Boolean> contiuousRotation = new ArrayList<Boolean>();
+        private ArrayList<Boolean> contiuousSpeed = new ArrayList<Boolean>();
 
         public SplineBuilder add() {
             Waypoint point = new Waypoint();
             waypoints.add(point);
+            contiuousSpeed.add(true);
+            contiuousRotation.add(true);
             return this;
         }
 
         public SplineBuilder add(EditablePose2D pos) {
             Waypoint point = new Waypoint(pos, 0, 0, -1);
             waypoints.add(point);
+            contiuousSpeed.add(true);
+            contiuousRotation.add(true);
             return this;
         }
 
         public SplineBuilder add(EditablePose2D pos, double velocityX, double velocityY) {
             Waypoint point = new Waypoint(pos, velocityX, velocityY, -1);
             waypoints.add(point);
+            contiuousSpeed.add(true);
+            contiuousRotation.add(true);
+            return this;
+        }
+
+        public SplineBuilder add(EditablePose2D pos, boolean continueRotation, boolean continueSpeed) {
+            Waypoint point = new Waypoint(pos, 0, 0, -1);
+            waypoints.add(point);
+            contiuousSpeed.add(continueRotation);
+            contiuousRotation.add(continueSpeed);
+            return this;
+        }
+
+        public SplineBuilder add(EditablePose2D pos, double velocityX, double velocityY, boolean continueRotation, boolean continueSpeed) {
+            Waypoint point = new Waypoint(pos, velocityX, velocityY, -1);
+            waypoints.add(point);
+            contiuousSpeed.add(continueRotation);
+            contiuousRotation.add(continueSpeed);
             return this;
         }
 
         public SplineBuilder add(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed) {
             Waypoint point = new Waypoint(pos, velocityX, velocityY, goalSpeed);
             waypoints.add(point);
+            contiuousSpeed.add(true);
+            contiuousRotation.add(true);
+            return this;
+        }
+
+        public SplineBuilder add(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed, boolean continueRotation, boolean continueSpeed) {
+            Waypoint point = new Waypoint(pos, velocityX, velocityY, goalSpeed);
+            waypoints.add(point);
+            contiuousSpeed.add(continueRotation);
+            contiuousRotation.add(continueSpeed);
             return this;
         }
 
@@ -53,7 +91,17 @@ public class Spline {
             return waypoints;
         }
 
+        public ArrayList<Boolean> getContinuousRotation(){
+            return contiuousRotation;
+        }
+
+        public ArrayList<Boolean> getContinuousSpeed(){
+            return contiuousSpeed;
+        }
+
         public Spline build(){
+            contiuousRotation.remove(contiuousRotation.size() - 1);
+            contiuousSpeed.remove(contiuousSpeed.size() - 1);
             return new Spline(this);
         }
     }
@@ -101,7 +149,7 @@ public class Spline {
         beta[0][0] = (waypoints.get(2).getX(DistanceUnit.INCH) - waypoints.get(0).getX(DistanceUnit.INCH)) * 3.0 - velocities[0][0];
         beta[0][1] = (waypoints.get(2).getY(DistanceUnit.INCH) - waypoints.get(0).getY(DistanceUnit.INCH)) * 3.0 - velocities[0][1];
 
-        for (int i=1; i < numSegmentPoints; i++) {
+        for (int i=1; i < numSegmentPoints-1; i++) {
             alpha[i] = 4.0 - (1.0 / alpha[i-1]);
 
             double dx = (waypoints.get(i+1).getX(DistanceUnit.INCH) - waypoints.get(i-1).getX(DistanceUnit.INCH)) * 3.0;
@@ -162,6 +210,11 @@ public class Spline {
         logNewLine("   Past Segment: ", pastSeg);
         if(pastSeg) {currentSegment++;}
 
+        if(done()) {
+            logNewLine("   done.");
+            return new double[]{0.0, 0.0, 0.0};
+        }
+
         // get curvature of point
         double curvature = segments.get(currentSegment).getCurvature(correspondingPoint[0]);
         double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / (1 + KC * Math.abs(curvature)));
@@ -189,21 +242,26 @@ public class Spline {
         );
         double[] forwardForce = new double[] {Math.cos(forwardAngle), Math.sin(forwardAngle)};
 
-        double[] curvatureForce = new double[] {-Math.cos(forwardAngle) * curvatureFactor, -Math.sin(forwardAngle) * curvatureFactor};
+        double[] curvatureForce = new double[] {-Math.cos(forwardAngle) * curvatureFactor / 10000000, -Math.sin(forwardAngle) * curvatureFactor / 10000000};
 
-        double[] crossTrackForce = new double[] {Math.clamp(dx * Math.sqrt(correspondingPoint[3] / 5), -1, 1), Math.clamp(dy * Math.sqrt(correspondingPoint[3] / 5), -1, 1)};
+        double[] crossTrackForce = new double[] {
+                Math.clamp(dx * Math.sqrt(Math.sqrt(correspondingPoint[3]) / 5), -1, 1),
+                Math.clamp(dy * Math.sqrt(Math.sqrt(correspondingPoint[3]) / 5), -1, 1)};
 
         // return the net force and rotation or wheel powers, need to decide
         double netForceX = forwardForce[0] + curvatureForce[0] + crossTrackForce[0];
         double netForceY = forwardForce[1] + curvatureForce[1] + crossTrackForce[1];
         double netForceAngle = Math.atan2(netForceY, netForceX);
 
-        double[] netForce = new double[]{netForceX * Math.cos(netForceAngle), netForceY * Math.sin(netForceAngle)};
+        double[] netForce = new double[]{
+                netForceX * Math.abs(Math.cos(netForceAngle)),
+                netForceY * Math.abs(Math.sin(netForceAngle))
+        };
         double netMagnitude = Math.hypot(netForce[0], netForce[1]);
 
         double goalAngle = segments.get(currentSegment).getStartPoint(false).getH() +
                 (segments.get(currentSegment).getEndPoint(false).getH() - segments.get(currentSegment).getStartPoint(false).getH()) * correspondingPoint[0];
-        double rotationForce = (goalAngle - heading) / (1000);
+        double rotationForce = (goalAngle - heading) / (100000);
 
         if (netMagnitude < 1e-12) {return new double[]{0.0, 0.0, rotationForce};}
 
@@ -238,10 +296,13 @@ public class Spline {
         double dy = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH);
 
         if (Math.abs((perpendicular - Math.PI / 2) % (Math.PI)) < 1e-12) {
+            log("   Vertical Line: ");
             double directionSpline = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getX(DistanceUnit.INCH);
             if(directionSpline >= 0) {
+                logNewLine("stay right ", dx <= 0);
                 return dx <= 0;
             }
+            logNewLine("stay left ", dx >= 0);
             return dx >= 0;
         }
 
