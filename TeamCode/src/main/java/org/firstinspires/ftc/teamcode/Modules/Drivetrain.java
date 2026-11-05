@@ -125,4 +125,16 @@ public class Drivetrain {
     public OdometryLocalizer getRobotPos() {
         return robotPos;
     }
+
+    public void Break(){
+        frWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        brWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        blWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frWheel.setPower(0);
+        brWheel.setPower(0);
+        flWheel.setPower(0);
+        blWheel.setPower(0);
+    }
 }

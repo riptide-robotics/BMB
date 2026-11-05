@@ -88,7 +88,11 @@ public class Meet0FSM extends LinearOpMode {
                     robot.getIntake().setIntakePosition(intakeServoUp);
                 }
 
-
+                if (gamepad2.a){
+                    robot.getDrivetrain().Break();
+                } else {
+                    fieldCentricDrive();
+                }
 
 
 
