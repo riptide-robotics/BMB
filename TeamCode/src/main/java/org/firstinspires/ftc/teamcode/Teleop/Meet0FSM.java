@@ -94,6 +94,14 @@ public class Meet0FSM extends LinearOpMode {
                     fieldCentricDrive();
                 }
 
+                if (gamepad2.x){
+                    robot.getOuttake().setBlockerPower(1);
+                } else if (gamepad2.b){
+                    robot.getOuttake().setBlockerPower(-1);
+                } else {
+                    robot.getOuttake().setBlockerPower(0);
+                }
+
 
 
 
