@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Modules.PIDController;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 
 import java.util.ArrayList;
@@ -15,7 +16,20 @@ public class Spline {
     private int numPoints;
     private String log;
 
-    public static double KC = 0.99;
+    public static double KCurvature = 0.99;
+    public static double FKP = 1/20d;
+    public static double FKI = 0.015;
+    public static double FKD = 0.0005;
+    public static double CKP = 1/40d;
+    public static double CKI = 0.015;
+    public static double CKD = 0.0005;
+    public static double AKP = 2/Math.PI;
+    public static double AKI = 0.015;
+    public static double AKD = 0.0005;
+    private PIDController forwardController = new PIDController(FKP, FKI, FKD, true);
+    private PIDController crossTrackController = new PIDController(CKP, CKI, CKD, true);
+    private PIDController angleController = new PIDController(AKP, AKI, AKD, true);
+    private double startTime = 0;
 
     public Spline(SplineBuilder s) {
         this.waypoints = s.getPath();
@@ -24,6 +38,12 @@ public class Spline {
         this.segments = new ArrayList<>();
         this.log = "";
         build();
+
+        forwardController.setDeadZone(0);
+        crossTrackController.setDeadZone(0);
+        angleController.setDeadZone(0);
+
+        startTime = (double) System.nanoTime() / 1E9;
     }
 
     public static class SplineBuilder {
@@ -208,7 +228,9 @@ public class Spline {
 //                )
         );
         logNewLine("   Past Segment: ", pastSeg);
-        if(pastSeg) {currentSegment++;}
+        if(pastSeg) {
+            currentSegment++;
+        }
 
         if(done()) {
             logNewLine("   done.");
@@ -217,7 +239,7 @@ public class Spline {
 
         // get curvature of point
         double curvature = segments.get(currentSegment).getCurvature(correspondingPoint[0]);
-        double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / (1 + KC * Math.abs(curvature)));
+        double curvatureFactor = curvature == 0? 0: Math.sqrt(1 / (1 + KCurvature * Math.abs(curvature)));
         logNewLine("   Curvature Factor: ", curvatureFactor);
 
         // dx and dy
@@ -244,13 +266,15 @@ public class Spline {
                 segments.get(currentSegment).getSlopeY(correspondingPoint[0]),
                 segments.get(currentSegment).getSlopeX(correspondingPoint[0])
         );
-        double[] forwardForce = new double[] {Math.cos(forwardAngle), Math.sin(forwardAngle)};
+        double[] forwardForce = new double[] {Math.sin(forwardAngle), Math.cos(forwardAngle)};
 
         double[] curvatureForce = new double[] {-Math.cos(forwardAngle) * curvatureFactor / 10000000, -Math.sin(forwardAngle) * curvatureFactor / 10000000};
 
+        double crossTrackPower = crossTrackController.calculate(0, correspondingPoint[3], startTime - (double) System.nanoTime() / 1E9);
         double[] crossTrackForce = new double[] {
-                Math.clamp(dx * Math.sqrt(Math.sqrt(correspondingPoint[3]) / 5), -1, 1),
-                Math.clamp(dy * Math.sqrt(Math.sqrt(correspondingPoint[3]) / 5), -1, 1)};
+                dx * crossTrackPower / correspondingPoint[3],
+                dy * crossTrackPower / correspondingPoint[3]
+        };
 
         // return the net force and rotation or wheel powers, need to decide
         double netForceX = forwardForce[0] + curvatureForce[0] + crossTrackForce[0];
@@ -265,8 +289,9 @@ public class Spline {
 
         double goalAngle = segments.get(currentSegment).getStartPoint(false).getH() +
                 (segments.get(currentSegment).getEndPoint(false).getH() - segments.get(currentSegment).getStartPoint(false).getH()) * correspondingPoint[0];
-        double rotationForce = (goalAngle - heading) / (100000);
-
+        double headingError = goalAngle - (heading + Math.PI);
+        if (headingError > Math.PI) {headingError -= 2 * Math.PI;}
+        double rotationForce = angleController.calculate(headingError, goalAngle, startTime - (double) System.nanoTime() / 1E9);//(headingError) / (Math.PI * 2 / 3);
         if (netMagnitude < 1e-12) {return new double[]{0.0, 0.0, rotationForce};}
 
         log("   Net Force: {", netForce[0] / netMagnitude);

@@ -110,8 +110,7 @@ public class PIDController {
      * @return output powers
      */
     public double calculate(double currPos, double goal, double currentTime){
-        if (!usingExternalClock) {usingExternalClock = true;}
-        else { throw new RuntimeException("not using an externalClock!");}
+        if (!usingExternalClock) {throw new RuntimeException("not using an externalClock!");}
 
         if (lastTime == 0) lastTime = currentTime;
 
