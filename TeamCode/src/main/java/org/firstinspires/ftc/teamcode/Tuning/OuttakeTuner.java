@@ -9,14 +9,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @Config
 @TeleOp(name="outtake tuner")
 public class OuttakeTuner extends LinearOpMode {
-    CRServo leftStingRay;
+    //CRServo leftStingRay;
     CRServo rightStingRay;
     public static double powerL = 0;
     public static double powerR = 0;
     public static double power = 0;
     @Override
     public void runOpMode() {
-        leftStingRay = hardwareMap.get(CRServo.class, "leftStingRay");
+        //leftStingRay = hardwareMap.get(CRServo.class, "leftStingRay");
         rightStingRay = hardwareMap.get(CRServo.class, "rightStingRay");
         rightStingRay.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
@@ -28,16 +28,16 @@ public class OuttakeTuner extends LinearOpMode {
             } else{
                 rightStingRay.setPower(0);
             }
-            if (gamepad2.left_trigger > 0.1){
-                leftStingRay.setPower(powerL);
-            } else if (gamepad2.b){
-                leftStingRay.setPower(power);
-            } else{
-                leftStingRay.setPower(0);
-            }
+//            if (gamepad2.left_trigger > 0.1){
+//                leftStingRay.setPower(powerL);
+//            } else if (gamepad2.b){
+//                leftStingRay.setPower(power);
+//            } else{
+//                leftStingRay.setPower(0);
+//            }
 
             if (gamepad2.b){
-                leftStingRay.setPower(power);
+                //leftStingRay.setPower(power);
                 rightStingRay.setPower(power);
             }
         }
