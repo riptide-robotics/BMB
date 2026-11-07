@@ -1,0 +1,71 @@
+package org.firstinspires.ftc.teamcode.Autonomous.AutonomousScripts;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline.Spline;
+import org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline.SplineSegment;
+import org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline.Waypoint;
+import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
+
+@Config
+@Autonomous(name = "Test Path Init", group = "Test")
+public class TestInit extends LinearOpMode {
+    private Spline spline;
+    Telemetry t = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        spline = new Spline.SplineBuilder()
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(0, 10, 0, DistanceUnit.INCH), 0, 1)
+                .build();
+
+        EditablePose2D pos1 = new EditablePose2D(0, 5, 0, DistanceUnit.INCH);
+        EditablePose2D pos2 = new EditablePose2D(-1, 5, 0, DistanceUnit.INCH);
+
+        waitForStart();
+
+        while(opModeIsActive()) {
+            print(pos1, pos2);
+            spline.clearLog();
+            spline.clearSegmentLog();
+        }
+    }
+
+    public void print(EditablePose2D pos1, EditablePose2D pos2) {
+        t.addLine("Spline: ");
+        t.addLine(spline.print());
+        t.addData("Past Segment1", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5)));
+        t.addLine("Follow1: ");
+        t.addLine(stringFollowPrint(spline.follow(pos1, 0)));
+
+        t.addData("Past Segment2", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5)));
+        t.addLine("Follow2: ");
+        t.addLine(stringFollowPrint(spline.follow(pos2, 0)));
+
+        t.addData("Done", spline.done());
+        t.addData("Current Segment", spline.getCurrentSegment());
+        t.addLine();
+
+        t.addLine("Spline Log:");
+        t.addLine(spline.getLog());
+        t.addLine("Segment Log: ");
+        t.addLine(spline.getSegmentLog());
+        t.update();
+    }
+
+    public String stringFollowPrint(double[] follow) {
+        String returnStr = "";
+        returnStr += "    X: " + follow[0] + "\n";
+        returnStr += "    Y: " + follow[1] + "\n";
+        returnStr += "    Rotate: " + follow[2] + "\n";
+        return returnStr;
+    }
+}

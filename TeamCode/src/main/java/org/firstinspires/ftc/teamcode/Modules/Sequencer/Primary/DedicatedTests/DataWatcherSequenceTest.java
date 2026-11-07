@@ -28,6 +28,6 @@ public class DataWatcherSequenceTest extends SequencedOpMode {
     }
     @Override
     public void onLoop() {
-        telemetry.addData("Odo Pod Position", dws.get());
+        seqtele.addData("Odo Pod Position", dws.get());
     }
 }

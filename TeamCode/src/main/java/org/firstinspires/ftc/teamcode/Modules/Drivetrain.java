@@ -48,10 +48,10 @@ public class Drivetrain {
         brWheel = hardwareMap.dcMotor.get("brWheel");
         blWheel = hardwareMap.dcMotor.get("blWheel");
 
-        blWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        flWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        frWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        brWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        blWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        flWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        frWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        brWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         brWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         blWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -69,7 +69,7 @@ public class Drivetrain {
 
         if (localizationMode == OdometryLocalizer.OdometryMethod.PINPOINT){
             try {
-                this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+                this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
                 pinpoint.setOffsets(0.5, 0, DistanceUnit.INCH);
                 pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -85,10 +85,9 @@ public class Drivetrain {
             robotPos = new OdometryLocalizer(blWheel, brWheel, flWheel, 10);
         }
 
-
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
 
         imu.resetYaw();
@@ -101,6 +100,8 @@ public class Drivetrain {
     public void resetImu() {
         imu.resetYaw();
     }
+
+    public void resetH() {robotPos.reset();}
 
     public double getRobotHeading(AngleUnit unit) {
         return imu.getRobotYawPitchRollAngles().getYaw(unit); // heading of bot in radians

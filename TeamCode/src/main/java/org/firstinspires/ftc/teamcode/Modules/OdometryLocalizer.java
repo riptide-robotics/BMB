@@ -57,15 +57,12 @@ public class OdometryLocalizer implements Runnable {
     // for the Pinpoint. I know that this runs on its own thread, but I think it is better to sequence a call like this every
     // so often. I don't know the practical uses for this though. Need professional opinion.
     public OdometryLocalizer(GoBildaPinpointDriver driver,int pollRate){
-
         this.leftParallel = null;
         this.rightParallel = null;
         this.perpendicular = null;
         this.pinpoint = driver;
         this.mode = OdometryMethod.PINPOINT;
         this.pollRate = pollRate;
-
-
     }
 
     public void threeWheelLocalize() {
@@ -117,6 +114,16 @@ public class OdometryLocalizer implements Runnable {
     public int getLeftEncoder() {return leftParallelTicks;}
     public int getRightEncoder() {return rightParallelTicks;}
     public int getPerpendicularEncoder() {return perpendicularTicks;}
+
+    public void reset() {
+        switch(mode) {
+            case PINPOINT:
+                pinpoint.setHeading(90, AngleUnit.DEGREES);
+                return;
+            case THREE_WHEEL:
+                currPos.setH(Math.PI/2);
+        }
+    }
 
     @Override
     public void run(){

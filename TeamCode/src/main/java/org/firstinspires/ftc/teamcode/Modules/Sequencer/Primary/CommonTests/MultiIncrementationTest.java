@@ -9,7 +9,7 @@ public class MultiIncrementationTest extends SequencedOpMode {
     int i = 0;
 
     public RepeatedSequence seq = new RepeatedSequence((accessor) -> {
-        telemetry.addData("Increment:", i > 16 ? "Too Old" : "" + i++);
+        seqtele.addData("Increment:", i > 16 ? "Too Old" : "" + i++);
 
     },500,500);
 

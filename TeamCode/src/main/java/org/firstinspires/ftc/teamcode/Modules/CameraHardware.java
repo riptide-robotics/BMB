@@ -20,7 +20,7 @@
 // *
 // */
 //@Autonomous
-//public class CameraHardware {
+//public class CameraHardware  {
 //
 //    ///////////////////////////////////////////////
 //    ////                                     /////

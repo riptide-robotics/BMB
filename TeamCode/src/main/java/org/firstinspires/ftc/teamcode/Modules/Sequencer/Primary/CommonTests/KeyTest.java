@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Modules.Sequencer.SequencedOpMode;
 public class KeyTest extends SequencedOpMode {
     @Override
     public void onStart() {
-        telemetry.addData("A",false);
+        seqtele.addData("A",false);
     }
 
     @Override

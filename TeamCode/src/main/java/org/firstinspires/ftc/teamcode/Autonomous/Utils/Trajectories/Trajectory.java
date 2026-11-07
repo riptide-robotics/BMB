@@ -109,5 +109,8 @@ public class Trajectory {
         return result;
     }
 
+    public double getSplineLength() {
+        return 0.0;
+    }
 
 }

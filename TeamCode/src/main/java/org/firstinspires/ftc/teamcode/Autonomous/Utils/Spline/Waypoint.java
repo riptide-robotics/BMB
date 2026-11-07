@@ -37,17 +37,38 @@ public class Waypoint extends EditablePose2D {
 //        goalSpeed = -1;
 //    }
 
+    public Waypoint(EditablePose2D pos) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
+        this.velocityVectorX = 0;
+        this.velocityVectorY = 0;
+        this.goalSpeed = -1;
+    }
+
+    public Waypoint(EditablePose2D pos, double velocityX, double velocityY) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
+        this.goalSpeed = -1;
+    }
+
     public Waypoint(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed) {
         super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
-        velocityVectorX = velocityX;
-        velocityVectorY = velocityY;
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
+        this.goalSpeed = goalSpeed;
+    }
+
+    public Waypoint(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed, DistanceUnit units) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), units);
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
         this.goalSpeed = goalSpeed;
     }
 
     public Waypoint(double x, double y, double h, double velocityX, double velocityY, double goalSpeed) {
         super(x, y, Math.toRadians(h), DistanceUnit.CM);
-        velocityVectorX = velocityX;
-        velocityVectorY = velocityY;
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
         this.goalSpeed = goalSpeed;
     }
 
@@ -92,6 +113,10 @@ public class Waypoint extends EditablePose2D {
         return velocityVectorY;
     }
 
+    public double getAngle() {
+        return Math.atan2(velocityVectorY, velocityVectorX);
+    }
+
     public void setVelocityVectorY(double velocityVectorY) {
         this.velocityVectorY = velocityVectorY;
     }
@@ -106,7 +131,7 @@ public class Waypoint extends EditablePose2D {
     }
 
     public boolean fullyDefined() {
-        return velocityVectorX != 0 && velocityVectorY != 0;
+        return !(velocityVectorX == 0 && velocityVectorY == 0);
     }
 
     @NonNull

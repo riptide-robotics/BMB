@@ -13,7 +13,15 @@ public enum Zones {
     A(new Zone("A", 5.0,10.0,1.0,8.0,2.0,5.0)),
     B(new Zone("B", 1.0,1.0,1.0,5.0,5.0,5.0,5.0,1.0)),
 
-    C(new Zone("C", 3.0,3.0,3.0,7.0,7.0,7.0,7.0,3.0)),
+    C(new Zone("C", new Double[][]
+            {
+                    new Double[]{3.0, 3.0},
+                    new Double[]{3.0, 7.0},
+                    new Double[]{7.0, 7.0},
+                    new Double[]{7.0, 3.0}
+            })),
+
+
 
     ;
     public final Zone zone;
@@ -22,6 +30,7 @@ public enum Zones {
         this.zone = zone;
     }
 
+    /// This is relatively resource heavy - avoid using this more than once a cycle
     public static List<Zones> getRobotZones(Robot robot) {
         List<Zones> returnedzones = new ArrayList<>();
 
