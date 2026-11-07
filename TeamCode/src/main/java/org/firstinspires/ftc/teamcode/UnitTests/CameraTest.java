@@ -20,21 +20,21 @@ public class CameraTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Check for Tag 20
-            CameraShell.TargetData tag20 = camera.getTagData(38);
-            if (tag20 != null) {
-                telemetry.addData("Tag 20 Distance (m)", tag20.distanceMeters);
-                telemetry.addData("Tag 20 Angle (deg)", tag20.elevationAngleDegrees);
+            CameraShell.TargetData tag38 = camera.getTagData(38);
+            if (tag38 != null) {
+                telemetry.addData("Tag 38 Distance (m)", tag38.distanceMeters);
+                telemetry.addData("Tag 38 Angle (deg)", tag38.elevationAngleDegrees);
             } else {
-                telemetry.addLine("Tag 20 not in view.");
+                telemetry.addLine("Tag 38 not in view.");
             }
 
             // Check for Tag 24
-            CameraShell.TargetData tag24 = camera.getTagData(41);
-            if (tag24 != null) {
-                telemetry.addData("Tag 24 Distance (m)", tag24.distanceMeters);
-                telemetry.addData("Tag 24 Angle (deg)", tag24.elevationAngleDegrees);
+            CameraShell.TargetData tag41 = camera.getTagData(41);
+            if (tag41 != null) {
+                telemetry.addData("Tag 41 Distance (m)", tag41.distanceMeters);
+                telemetry.addData("Tag 41 Angle (deg)", tag41.elevationAngleDegrees);
             } else {
-                telemetry.addLine("Tag 24 not in view.");
+                telemetry.addLine("Tag 41 not in view.");
             }
 
             telemetry.update();
