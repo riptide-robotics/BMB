@@ -157,7 +157,9 @@ public class Spline {
     }
 
     public void defineRange(int start, int end) {
-        int numSegmentPoints = end-start+1;
+        if(end - start <= 1) {return;}
+
+        int numSegmentPoints = end - start + 1;
         double[] alpha = new double[numSegmentPoints];
         double[][] beta = new double[numSegmentPoints][2];
         double[][] velocities = new double[numSegmentPoints][2];
@@ -165,32 +167,32 @@ public class Spline {
         velocities[0] = waypoints.get(start).getVelocityVector();
         velocities[numSegmentPoints-1] = waypoints.get(end).getVelocityVector();
 
-        alpha[0] = 4.0;
-        beta[0][0] = (waypoints.get(2).getX(DistanceUnit.INCH) - waypoints.get(0).getX(DistanceUnit.INCH)) * 3.0 - velocities[0][0];
-        beta[0][1] = (waypoints.get(2).getY(DistanceUnit.INCH) - waypoints.get(0).getY(DistanceUnit.INCH)) * 3.0 - velocities[0][1];
+        alpha[1] = 4.0;
+        beta[1][0] = (waypoints.get(start + 2).getX(DistanceUnit.INCH) - waypoints.get(start).getX(DistanceUnit.INCH)) * 3.0 - velocities[0][0];
+        beta[1][1] = (waypoints.get(start + 2).getY(DistanceUnit.INCH) - waypoints.get(start).getY(DistanceUnit.INCH)) * 3.0 - velocities[0][1];
 
-        for (int i=1; i < numSegmentPoints-1; i++) {
+        for (int i=2; i < numSegmentPoints-1; i++) {
             alpha[i] = 4.0 - (1.0 / alpha[i-1]);
 
-            double dx = (waypoints.get(i+1).getX(DistanceUnit.INCH) - waypoints.get(i-1).getX(DistanceUnit.INCH)) * 3.0;
+            double dx = (waypoints.get(start + i + 1).getX(DistanceUnit.INCH) - waypoints.get(start + i - 1).getX(DistanceUnit.INCH)) * 3.0;
             beta[i][0] = dx - (beta[i-1][0] / alpha[i-1]);
 
-            double dy = (waypoints.get(i+1).getY(DistanceUnit.INCH) - waypoints.get(i-1).getY(DistanceUnit.INCH)) * 3.0;
+            double dy = (waypoints.get(start + i + 1).getY(DistanceUnit.INCH) - waypoints.get(start + i - 1).getY(DistanceUnit.INCH)) * 3.0;
             beta[i][1] = dy - (beta[i-1][1] / alpha[i-1]);
         }
 
-        beta[numSegmentPoints-1][0] -= velocities[numSegmentPoints-1][0];
-        beta[numSegmentPoints-1][1] -= velocities[numSegmentPoints-1][1];
+        beta[numSegmentPoints-2][0] -= velocities[numSegmentPoints-1][0];
+        beta[numSegmentPoints-2][1] -= velocities[numSegmentPoints-1][1];
 
-        velocities[numSegmentPoints-1][0] = beta[numSegmentPoints-1][0] / alpha[numSegmentPoints - 1];
-        velocities[numSegmentPoints-1][1] = beta[numSegmentPoints-1][1] / alpha[numSegmentPoints - 1];
-        for (int i=numSegmentPoints-2; i>=0; i--) {
+        velocities[numSegmentPoints-2][0] = beta[numSegmentPoints-2][0] / alpha[numSegmentPoints - 2];
+        velocities[numSegmentPoints-2][1] = beta[numSegmentPoints-2][1] / alpha[numSegmentPoints - 2];
+        for (int i=numSegmentPoints-3; i>=1; i--) {
             velocities[i][0] = (beta[i][0] - velocities[i+1][0]) / alpha[i];
             velocities[i][1] = (beta[i][1] - velocities[i+1][1]) / alpha[i];
         }
 
         for (int i=1; i<numSegmentPoints-1; i++) {
-            waypoints.get(start+i+1).setVeloctiyVector(velocities[i][0], velocities[i][1]);
+            waypoints.get(start + i).setVeloctiyVector(velocities[i][0], velocities[i][1]);
         }
     }
 

@@ -27,9 +27,9 @@ public class TestFB extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
-                .add(new EditablePose2D(0, 10, 0, DistanceUnit.INCH))
-                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, -1)
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0)
+                .add(new EditablePose2D(10, 0, 0, DistanceUnit.INCH))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0)
                 .build();
 
         robot = new Robot(hardwareMap);
@@ -49,41 +49,13 @@ public class TestFB extends LinearOpMode {
         while(opModeIsActive()) {
             double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
 
-//            t.addData("Spline: ", spline.print());
-//            t.addData("Follow: \n", stringFollowPrint(moveArray));
-//            t.addData("Done", spline.done());
-//            t.addData("Current Segment: ", spline.getCurrentSegment());
-//            t.addData("Spline Log:\n", spline.getLog());
-//            t.addData("\nSegment Log:\n", spline.getSegmentLog());
-//            t.update();
-
             print(moveArray);
 
             spline.clearLog();
             spline.clearSegmentLog();
 
-            fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2]);
+            robot.getDrivetrain().fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2], slowdown);
         }
-    }
-
-    private void fieldCentricDrive(double y, double x, double rx) {
-        double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
-
-        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
-        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
-
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
-        double flWheelPower = (rotY + rotX + rx) / denominator;
-        double brWheelPower = (rotY + rotX - rx) / denominator;
-        double blWheelPower = (rotY - rotX + rx) / denominator;
-
-        robot.getDrivetrain().setWheelPowers(
-                flWheelPower * slowdown,
-                frWheelPower * slowdown,
-                brWheelPower * slowdown,
-                blWheelPower * slowdown
-        );
     }
 
     public void print(double[] moveArray) {

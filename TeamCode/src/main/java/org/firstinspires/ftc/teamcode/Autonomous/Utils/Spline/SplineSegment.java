@@ -66,12 +66,29 @@ public class SplineSegment {
         double[] coefficients = {c0, c1, c2, c3, c4, c5};
         int degree = 5;
 
+        for (double c: coefficients) {
+            if(!Double.isFinite(c)) {
+                logNewLine("   Bad coefficient.");
+                return new double[]{
+                        1.0,
+                        endPoint.getX(DistanceUnit.INCH),
+                        endPoint.getY(DistanceUnit.INCH),
+                        dist(
+                                pos.getX(DistanceUnit.INCH),
+                                pos.getY(DistanceUnit.INCH),
+                                endPoint.getX(DistanceUnit.INCH),
+                                endPoint.getY(DistanceUnit.INCH)
+                        )
+                };
+            }
+        }
+
         while (degree > 0 && Math.abs(coefficients[degree]) < 1e-9) {
             degree--;
         }
 
         if (degree == 0) {
-            logNewLine("   Coefficientss all 0.");
+            logNewLine("   Coefficients all 0.");
             return new double[]{
                     1.0,
                     endPoint.getX(DistanceUnit.INCH),

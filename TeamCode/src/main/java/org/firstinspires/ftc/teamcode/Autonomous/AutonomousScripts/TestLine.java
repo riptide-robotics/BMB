@@ -45,11 +45,6 @@ public class TestLine extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
-            t.addData("Goal X1", 0);
-            t.addData("Goal Y1", 0);
-            t.addData("Goal X2", 10);
-            t.addData("Goal Y2", 0);
-
             double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
 
             print(moveArray);
@@ -57,29 +52,8 @@ public class TestLine extends LinearOpMode {
             spline.clearLog();
             spline.clearSegmentLog();
 
-            fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2]);
+            robot.getDrivetrain().fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2], slowdown);
         }
-    }
-
-    private void fieldCentricDrive(double x, double y, double rx) {
-        double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
-        //double heading = robot.getDrivetrain().getCurrPos().getH();
-
-        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
-        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
-
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
-        double flWheelPower = (rotY + rotX + rx) / denominator;
-        double brWheelPower = (rotY + rotX - rx) / denominator;
-        double blWheelPower = (rotY - rotX + rx) / denominator;
-
-        robot.getDrivetrain().setWheelPowers(
-                flWheelPower * slowdown,
-                frWheelPower * slowdown,
-                brWheelPower * slowdown,
-                blWheelPower * slowdown
-        );
     }
 
     public void print(double[] moveArray) {

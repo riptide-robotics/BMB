@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Modules;
 
+import static org.firstinspires.ftc.teamcode.riptideUtil.SLOWDOWN;
 import static java.lang.Thread.sleep;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -93,6 +94,47 @@ public class Drivetrain {
         imu.resetYaw();
         imu.initialize(parameters);
 
+    }
+
+    // ------- FIELD CENTRIC DRIVE ------ //
+    public void fieldCentricDrive(double y, double x, double rx) {
+        double heading = getRobotHeading(AngleUnit.RADIANS);
+
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
+        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
+        double flWheelPower = (rotY + rotX + rx) / denominator;
+        double brWheelPower = (rotY + rotX - rx) / denominator;
+        double blWheelPower = (rotY - rotX + rx) / denominator;
+
+        setWheelPowers(
+                flWheelPower * SLOWDOWN,
+                frWheelPower * SLOWDOWN,
+                brWheelPower * SLOWDOWN,
+                blWheelPower * SLOWDOWN
+        );
+    }
+
+    public void fieldCentricDrive(double y, double x, double rx, double slowdown) {
+        double heading = getRobotHeading(AngleUnit.RADIANS);
+
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
+        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
+        double flWheelPower = (rotY + rotX + rx) / denominator;
+        double brWheelPower = (rotY + rotX - rx) / denominator;
+        double blWheelPower = (rotY - rotX + rx) / denominator;
+
+        setWheelPowers(
+                flWheelPower * slowdown,
+                frWheelPower * slowdown,
+                brWheelPower * slowdown,
+                blWheelPower * slowdown
+        );
     }
 
     // ----------- START/STOP ----------- //
