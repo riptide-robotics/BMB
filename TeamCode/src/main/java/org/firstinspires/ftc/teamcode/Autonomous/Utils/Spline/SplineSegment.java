@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 
+import org.ejml.data.Matrix;
+import org.ejml.interfaces.decomposition.EigenDecomposition;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.ejml.simple.SimpleMatrix;
@@ -61,18 +63,53 @@ public class SplineSegment {
         double c1 =  2 * (dx * a_2X + dy * a_2Y) - (a_1X * a_1X + a_1Y * a_1Y);
         double c0 = (dx * a_1X + dy * a_1Y);
 
-        if (Math.abs(c5) < 1e-12) {
-            c5 = 1e-12;
+        double[] coefficients = {c0, c1, c2, c3, c4, c5};
+        int degree = 5;
+
+        while (degree > 0 && Math.abs(coefficients[degree]) < 1e-9) {
+            degree--;
         }
 
-        SimpleMatrix norm_c = new SimpleMatrix(new double[][]{{c4, c3, c2, c1, c0}}).divide(c5);
-        SimpleMatrix C = new SimpleMatrix(new double[][]{
-            {0, 0, 0, 0, -norm_c.get(4)},
-            {1, 0, 0, 0, -norm_c.get(3)},
-            {0, 1, 0, 0, -norm_c.get(2)},
-            {0, 0, 1, 0, -norm_c.get(1)},
-            {0, 0, 0, 1, -norm_c.get(0)}
-        });
+        if (degree == 0) {
+            logNewLine("   Coefficientss all 0.");
+            return new double[]{
+                    1.0,
+                    endPoint.getX(DistanceUnit.INCH),
+                    endPoint.getY(DistanceUnit.INCH),
+                    dist(
+                            pos.getX(DistanceUnit.INCH),
+                            pos.getY(DistanceUnit.INCH),
+                            endPoint.getX(DistanceUnit.INCH),
+                            endPoint.getY(DistanceUnit.INCH)
+                    )
+            };
+        }
+
+        // Build the companion matrix for the corrected degree
+        SimpleMatrix C = new SimpleMatrix(degree, degree);
+        double greatestCoefficient = coefficients[degree];
+
+        for (int i = 0; i < degree; i++) {
+            // Set the rightmost column to negative normalized coefficients
+            C.set(i, degree - 1, -coefficients[i] / greatestCoefficient);
+            // Set the subdiagonal to 1
+            if (i > 0) {
+                C.set(i, i - 1, 1.0);
+            }
+        }
+
+//        if (Math.abs(c5) < 1e-12) {
+//            c5 = 1e-12;
+//        }
+//
+//        SimpleMatrix norm_c = new SimpleMatrix(new double[][]{{c4, c3, c2, c1, c0}}).divide(c5);
+//        SimpleMatrix C = new SimpleMatrix(new double[][]{
+//            {0, 0, 0, 0, -norm_c.get(4)},
+//            {1, 0, 0, 0, -norm_c.get(3)},
+//            {0, 1, 0, 0, -norm_c.get(2)},
+//            {0, 0, 1, 0, -norm_c.get(1)},
+//            {0, 0, 0, 1, -norm_c.get(0)}
+//        });
 
         SimpleEVD<SimpleMatrix> eig = C.eig();
 
