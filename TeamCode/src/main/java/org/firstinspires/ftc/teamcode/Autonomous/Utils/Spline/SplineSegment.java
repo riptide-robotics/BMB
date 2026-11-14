@@ -140,7 +140,7 @@ public class SplineSegment {
 
             if (eigenvalue.isReal()) {
                 double temp = eigenvalue.getReal();
-                if (temp < 0 || temp > 1) {continue;}
+                if (temp <= 0 || temp >= 1) {continue;}
                 double pointX = getX(temp);
                 double pointY = getY(temp);
                 if(closestPoint == null || dist(pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pointX, pointY) < closestDist) {
@@ -158,16 +158,31 @@ public class SplineSegment {
         }
         if (closestPoint == null) {
             logNewLine("   No point corresponding found.");
-            return new double[]{
-                    1.0,
+            double startpointDist = dist(
+                    pos.getX(DistanceUnit.INCH),
+                    pos.getY(DistanceUnit.INCH),
+                    startPoint.getX(DistanceUnit.INCH),
+                    startPoint.getY(DistanceUnit.INCH)
+            );
+            double endpointDist = dist(
+                    pos.getX(DistanceUnit.INCH),
+                    pos.getY(DistanceUnit.INCH),
                     endPoint.getX(DistanceUnit.INCH),
-                    endPoint.getY(DistanceUnit.INCH),
-                    dist(
-                            pos.getX(DistanceUnit.INCH),
-                            pos.getY(DistanceUnit.INCH),
-                            endPoint.getX(DistanceUnit.INCH),
-                            endPoint.getY(DistanceUnit.INCH)
-                    )
+                    endPoint.getY(DistanceUnit.INCH)
+            );
+            if (endpointDist < startpointDist) {
+                return new double[]{
+                        1.0,
+                        endPoint.getX(DistanceUnit.INCH),
+                        endPoint.getY(DistanceUnit.INCH),
+                        endpointDist,
+                };
+            }
+            return new double[]{
+                    0.0,
+                    startPoint.getX(DistanceUnit.INCH),
+                    startPoint.getY(DistanceUnit.INCH),
+                    startpointDist,
             };
         }
 
@@ -178,7 +193,7 @@ public class SplineSegment {
         logNewLine("   u: ", t);
         lineBreak();
 
-        return new double[]{t, closestPoint[0], closestPoint[1], closestDist};
+        return new double[]{1-t, closestPoint[0], closestPoint[1], closestDist};
     }
 
     public double getCurvature(double t) {

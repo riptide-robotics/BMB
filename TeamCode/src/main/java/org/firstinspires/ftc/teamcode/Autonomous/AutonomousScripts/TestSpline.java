@@ -33,7 +33,7 @@ public class TestSpline extends LinearOpMode {
                 .build();
 
         robot = new Robot(hardwareMap);
-
+        robot.getDrivetrain().startOdometry();
         slowdown = 0.5;
 
         t.addData("Robot status", "succesfully initiated");

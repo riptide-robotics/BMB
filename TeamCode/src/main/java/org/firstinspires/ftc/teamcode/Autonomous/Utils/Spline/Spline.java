@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.PIDController;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
@@ -23,9 +24,9 @@ public class Spline {
     public static double CKP = 1/40d;
     public static double CKI = 0.015;
     public static double CKD = 0.0005;
-    public static double AKP = 2/Math.PI;
-    public static double AKI = 0.015;
-    public static double AKD = 0.0005;
+    public static double AKP = 0.07;
+    public static double AKI = 0.725;
+    public static double AKD = 0.00005;
     private PIDController forwardController = new PIDController(FKP, FKI, FKD, true);
     private PIDController crossTrackController = new PIDController(CKP, CKI, CKD, true);
     private PIDController angleController = new PIDController(AKP, AKI, AKD, true);
@@ -221,13 +222,13 @@ public class Spline {
 
         boolean pastSeg = pastSegment(
                 pos,
-                correspondingPoint[0]
-//                SplineSegment.dist(
-//                        segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH),
-//                        segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH),
-//                        pos.getX(DistanceUnit.INCH),
-//                        pos.getY(DistanceUnit.INCH)
-//                )
+                correspondingPoint[0],
+                SplineSegment.dist(
+                        segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH),
+                        segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH),
+                        pos.getX(DistanceUnit.INCH),
+                        pos.getY(DistanceUnit.INCH)
+                )
         );
         logNewLine("   Past Segment: ", pastSeg);
         if(pastSeg) {
@@ -268,19 +269,19 @@ public class Spline {
                 segments.get(currentSegment).getSlopeY(correspondingPoint[0]),
                 segments.get(currentSegment).getSlopeX(correspondingPoint[0])
         );
-        double[] forwardForce = new double[] {Math.sin(forwardAngle), Math.cos(forwardAngle)};
+        double[] forwardForce = new double[] {Math.cos(forwardAngle), Math.sin(forwardAngle)};
 
         double[] curvatureForce = new double[] {-Math.cos(forwardAngle) * curvatureFactor / 10000000, -Math.sin(forwardAngle) * curvatureFactor / 10000000};
 
-        double crossTrackPower = crossTrackController.calculate(0, correspondingPoint[3], startTime - (double) System.nanoTime() / 1E9);
+        double crossTrackPower = crossTrackController.calculate(0, correspondingPoint[3], (double) System.nanoTime() / 1E9 - startTime);
         double[] crossTrackForce = new double[] {
                 dx * crossTrackPower / correspondingPoint[3],
                 dy * crossTrackPower / correspondingPoint[3]
         };
 
         // return the net force and rotation or wheel powers, need to decide
-        double netForceX = forwardForce[0] + curvatureForce[0] + crossTrackForce[0];
-        double netForceY = forwardForce[1] + curvatureForce[1] + crossTrackForce[1];
+        double netForceX = forwardForce[0] + 0*curvatureForce[0] + 0*crossTrackForce[0];
+        double netForceY = forwardForce[1] + 0*curvatureForce[1] + 0*crossTrackForce[1];
         double netForceAngle = Math.atan2(netForceY, netForceX);
 
         double[] netForce = new double[]{
@@ -291,9 +292,10 @@ public class Spline {
 
         double goalAngle = segments.get(currentSegment).getStartPoint(false).getH() +
                 (segments.get(currentSegment).getEndPoint(false).getH() - segments.get(currentSegment).getStartPoint(false).getH()) * correspondingPoint[0];
-        double headingError = goalAngle - (heading + Math.PI);
-        if (headingError > Math.PI) {headingError -= 2 * Math.PI;}
-        double rotationForce = angleController.calculate(headingError, goalAngle, startTime - (double) System.nanoTime() / 1E9);//(headingError) / (Math.PI * 2 / 3);
+        double headingError = AngleUnit.normalizeRadians(goalAngle - heading);
+//        if (headingError > Math.PI) {headingError -= 2 * Math.PI;}
+        //double angleError = AngleUnit.normalizeRadians(goalAngle - headingError);
+        double rotationForce = angleController.calculate(headingError, 0, (double) System.nanoTime() / 1E9 - startTime);//(headingError) / (Math.PI * 2 / 3);
         if (netMagnitude < 1e-12) {return new double[]{0.0, 0.0, rotationForce};}
 
         log("   Net Force: {", netForce[0] / netMagnitude);
@@ -313,10 +315,11 @@ public class Spline {
         return new double[] {netForce[0] / netMagnitude, netForce[1] / netMagnitude, rotationForce};
     }
 
-    public boolean pastSegment(EditablePose2D pos, double u) {
+    public boolean pastSegment(EditablePose2D pos, double u, double dist) {
         logNewLine("   Past Segment: ");
-        logNewLine("      Too Far: ", u < 0.95);
-        if (u < 0.95 || done()) {return false;}
+        logNewLine("      Too Far u: ", u < 0.95);
+        logNewLine("      Too Far dist: ", dist > 1.0);
+        if (u < 0.95 || dist > 1.0 || done()) {return false;}
         double angleCutoff = segments.get(currentSegment).getEndPoint(false).getAngle(); // need to get perpendicular for line of passing to next seg
         double perpendicular = angleCutoff + (Math.PI / 2);
 
@@ -326,28 +329,31 @@ public class Spline {
         double dx = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH);
         double dy = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH);
 
-        if (Math.abs((perpendicular - Math.PI / 2) % (Math.PI)) < 1e-12) {
-            log("   Vertical Line: ");
-            double directionSpline = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getX(DistanceUnit.INCH);
-            if(directionSpline >= 0) {
-                logNewLine("stay right ", dx <= 0);
-                return dx <= 0;
-            }
-            logNewLine("stay left ", dx >= 0);
-            return dx >= 0;
-        }
+//        if (Math.abs((perpendicular - Math.PI / 2) % (Math.PI)) < 1e-12) {
+//            log("   Vertical Line: ");
+//            double directionSpline = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getX(DistanceUnit.INCH);
+//            if(directionSpline >= 0) {
+//                logNewLine("stay right ", dx <= 0);
+//                return dx <= 0;
+//            }
+//            logNewLine("stay left ", dx >= 0);
+//            return dx >= 0;
+//        }
 
         log("      Dist Endpt: {", dx);
         log(", ", dy);
         logNewLine("}");
 
         double determinant = Math.cos(perpendicular) * dy - Math.sin(perpendicular) * dx; // cross product to get if point above or below line
-        double directionSpline = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getY(DistanceUnit.INCH);
-
         logNewLine("      Determinant: ", determinant);
-        logNewLine("      Direction: ", directionSpline);
 
-        return determinant == 0 || (directionSpline > 0 && determinant > 0) || (directionSpline < 0 && determinant < 0); // on line or below line or above line.
+        return determinant >= 0;
+//        double directionSpline = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getY(DistanceUnit.INCH);
+//
+//        logNewLine("      Determinant: ", determinant);
+//        logNewLine("      Direction: ", directionSpline);
+//
+//        return determinant == 0 || (directionSpline > 0 && determinant > 0) || (directionSpline < 0 && determinant < 0); // on line or below line or above line.
     }
 
     public boolean done() {return currentSegment >= segments.size();}

@@ -33,7 +33,7 @@ public class TestFB extends LinearOpMode {
                 .build();
 
         robot = new Robot(hardwareMap);
-
+        robot.getDrivetrain().startOdometry();
         slowdown = 0.5;
 
         t.addData("Robot status", "succesfully initiated");
@@ -59,6 +59,13 @@ public class TestFB extends LinearOpMode {
     }
 
     public void print(double[] moveArray) {
+        EditablePose2D pos = robot.getDrivetrain().getCurrPos();
+
+        t.addData("Robot Pos: {x: ", pos.getX(DistanceUnit.INCH));
+        t.addData(", y: ", pos.getY(DistanceUnit.INCH));
+        t.addData(", h: ", robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
+        t.addLine("};");
+
         t.addLine("Spline: ");
         t.addLine(spline.print());
         t.addLine("Follow: ");

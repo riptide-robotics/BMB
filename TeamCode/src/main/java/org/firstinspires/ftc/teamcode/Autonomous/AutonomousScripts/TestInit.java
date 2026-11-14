@@ -42,11 +42,11 @@ public class TestInit extends LinearOpMode {
     public void print(EditablePose2D pos1, EditablePose2D pos2) {
         t.addLine("Spline: ");
         t.addLine(spline.print());
-        t.addData("Past Segment1", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5)));
+        t.addData("Past Segment1", spline.pastSegment(pos1, SplineSegment.dist(0, 10, 0, 5), 5.0));
         t.addLine("Follow1: ");
         t.addLine(stringFollowPrint(spline.follow(pos1, 0)));
 
-        t.addData("Past Segment2", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5)));
+        t.addData("Past Segment2", spline.pastSegment(pos2, SplineSegment.dist(0, 10, -1, 5), 5.43));
         t.addLine("Follow2: ");
         t.addLine(stringFollowPrint(spline.follow(pos2, 0)));
 

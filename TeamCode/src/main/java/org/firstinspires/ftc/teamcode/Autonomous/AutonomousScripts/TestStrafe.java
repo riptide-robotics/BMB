@@ -26,13 +26,13 @@ public class TestStrafe extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 1, 0)
-                .add(new EditablePose2D(10, 0, 0, DistanceUnit.INCH))
-                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), -1, 0)
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(0, -10, 0, DistanceUnit.INCH))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
                 .build();
 
         robot = new Robot(hardwareMap);
-
+        robot.getDrivetrain().startOdometry();
         slowdown = 0.5;
 
         t.addData("Robot status", "succesfully initiated");
@@ -53,7 +53,7 @@ public class TestStrafe extends LinearOpMode {
             spline.clearLog();
             spline.clearSegmentLog();
 
-            robot.getDrivetrain().fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2], slowdown);
+            robot.getDrivetrain().fieldCentricDrive(moveArray[0], -moveArray[1], moveArray[2], slowdown);
         }
     }
 
