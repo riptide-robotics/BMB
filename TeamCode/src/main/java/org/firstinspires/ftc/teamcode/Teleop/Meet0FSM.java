@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.riptideUtil.horizontalSlideExtendedPos;
-import static org.firstinspires.ftc.teamcode.riptideUtil.horizontalSlideRetractedPos;
 import static org.firstinspires.ftc.teamcode.riptideUtil.intakePower;
 import static org.firstinspires.ftc.teamcode.riptideUtil.intakeServoDown;
 import static org.firstinspires.ftc.teamcode.riptideUtil.intakeServoUp;
@@ -14,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Robot;
 
-
 @Config
 @TeleOp(name = "Meet 0 FSM")
 public class Meet0FSM extends LinearOpMode {
@@ -22,7 +19,7 @@ public class Meet0FSM extends LinearOpMode {
     Robot robot;
 
     boolean hasrun = false;
-
+    boolean wasHolding = false;
 
     public enum states{
         IDLE,
@@ -47,27 +44,25 @@ public class Meet0FSM extends LinearOpMode {
         telemetry.update();
 
         while(opModeIsActive()){
+            robot.getDrivetrain().update();
             telemetry.addData("Current State:", currentState);
             telemetry.update();
             FSM();
-            fieldCentricDrive();
         }
     }
-
 
     private void FSM(){
         switch(currentState){
             case IDLE:
 
                 if (!hasrun){
-                    //Do idle things
                     robot.getIntake().setIntakePosition(intakeServoDown);
                     hasrun = true;
                 }
 
                 if (gamepad2.right_trigger > 0.1){
                     robot.getIntake().setPower(intakePower);
-                }  else if (gamepad2.back){
+                } else if (gamepad2.back){
                     robot.getIntake().setPower(-intakePower);
                 } else {
                     robot.getIntake().setPower(0);
@@ -75,9 +70,9 @@ public class Meet0FSM extends LinearOpMode {
 
                 if (gamepad2.left_trigger > 0.1){
                     robot.getOuttake().setOuttakePower(outtakePower);
-                }   else if (gamepad2.start){
+                } else if (gamepad2.start){
                     robot.getOuttake().setOuttakePower(-outtakePower);
-                } else{
+                } else {
                     robot.getOuttake().setOuttakePower(0);
                 }
 
@@ -88,10 +83,15 @@ public class Meet0FSM extends LinearOpMode {
                     robot.getIntake().setIntakePosition(intakeServoUp);
                 }
 
-                if (gamepad2.a){
-                    robot.getDrivetrain().Break();
+                if (gamepad1.a){
+                    robot.getDrivetrain().SetWayPoint();
+                    telemetry.addData("Mode", "SETTING WAYPOINT");
+                } else if (gamepad1.b){
+                    robot.getDrivetrain().GoToWayPoint();
+                    telemetry.addData("Mode", "GOING TO WAYPOINT");
                 } else {
                     fieldCentricDrive();
+                    telemetry.addData("Mode", "NORMAL DRIVING");
                 }
 
                 if (gamepad2.x){
@@ -104,29 +104,21 @@ public class Meet0FSM extends LinearOpMode {
 
 
 
-
-//                if (gamepad2.b){
-//                    currentState = states.INTAKE;
-//                    hasrun = false;
-//                }
-//
-//                if (gamepad2.x){
-//                    currentState = states.OUTTAKE;
-//                    hasrun = false;
-//                }
-
                 break;
+        }
+
+        if (!gamepad1.a){
+            wasHolding = false;
         }
     }
 
     private void fieldCentricDrive() {
         double slowdown = gamepad1.right_trigger > 0 ? 0.25 : 1;
         double y = -gamepad1.left_stick_y * slowdown;
-        double x = gamepad1.left_stick_x * 1.1 * slowdown;
+        double x = gamepad1.left_stick_x * slowdown;
         double rx = -gamepad1.right_stick_x * slowdown;
 
         double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
-
 
         double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
         double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);

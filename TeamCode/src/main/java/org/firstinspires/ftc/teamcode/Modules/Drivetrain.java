@@ -14,36 +14,28 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.firstinspires.ftc.teamcode.Modules.Utils.GoBildaPinpointDriver;
 
-
-// ----- READY TO TRANSFER ----- //
-
 public class Drivetrain {
 
-    ///////////////////////////////////////////////
-    ////                                     /////
-    ////              VARIABLES              /////
-    ////                                     /////
-    //////////////////////////////////////////////
-
-    // -------- DRIVETRAIN MOTORS -------- //
     private final DcMotor frWheel, flWheel, brWheel, blWheel;
     private final GoBildaPinpointDriver pinpoint;
     private final IMU imu;
     private ElapsedTime timer;
 
     private final OdometryLocalizer robotPos;
-    private final OdometryLocalizer.OdometryMethod localizationMode = OdometryLocalizer.OdometryMethod.PINPOINT; // to be changed
+    private final OdometryLocalizer.OdometryMethod localizationMode = OdometryLocalizer.OdometryMethod.PINPOINT;
 
-    ///////////////////////////////////////////////
-    ////                                     /////
-    ////              FUNCTIONS              /////
-    ////                                     /////
-    //////////////////////////////////////////////
+    private double targetX = 0;
+    private double targetY = 0;
+    private double targetHeading = 0;
 
-    // --------- INITIALIZATION --------- //
+    public static double P_TRANSLATION = 0.1;
+    public static double P_HEADING = 2.0;
+
+    private double waypointX = 0;
+    private double waypointY = 0;
+    private double waypointHeading = 0;
 
     public Drivetrain(HardwareMap hardwareMap) {
-
         frWheel = hardwareMap.dcMotor.get("frWheel");
         flWheel = hardwareMap.dcMotor.get("flWheel");
         brWheel = hardwareMap.dcMotor.get("brWheel");
@@ -69,18 +61,16 @@ public class Drivetrain {
         blWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         if(localizationMode == OdometryLocalizer.OdometryMethod.PINPOINT){
-            this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
-            pinpoint.setOffsets(0.5, 0, DistanceUnit.INCH);
+            this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
+            pinpoint.setOffsets(0, 3.5, DistanceUnit.INCH);
             pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
             pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
             robotPos = new OdometryLocalizer(this.pinpoint, 10);
             pinpoint.resetPosAndIMU();
-        }
-        else {
+        } else {
             this.pinpoint = null;
             robotPos = new OdometryLocalizer(blWheel, brWheel, flWheel, 10);
         }
-
 
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -89,21 +79,15 @@ public class Drivetrain {
 
         imu.resetYaw();
         imu.initialize(parameters);
-
     }
-
-    // ----------- START/STOP ----------- //
 
     public void resetImu() {
         imu.resetYaw();
     }
 
     public double getRobotHeading(AngleUnit unit) {
-        return imu.getRobotYawPitchRollAngles().getYaw(unit); // heading of bot in radians
+        return imu.getRobotYawPitchRollAngles().getYaw(unit);
     }
-
-    // ------------ SETTERS ------------ //
-
 
     public void setWheelPowers(double flWheelPower, double frWheelPower, double brWheelPower, double blWheelPower) {
         frWheel.setPower(frWheelPower);
@@ -112,7 +96,6 @@ public class Drivetrain {
         blWheel.setPower(blWheelPower);
     }
 
-    // ------------ GETTERS ------------ //
     public EditablePose2D getCurrPos() {
         return robotPos.getCurrPos();
     }
@@ -126,15 +109,131 @@ public class Drivetrain {
         return robotPos;
     }
 
-    public void Break(){
-        frWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        brWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        flWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        blWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    public GoBildaPinpointDriver getPinpoint() {
+        return pinpoint;
+    }
 
-        frWheel.setPower(0);
-        brWheel.setPower(0);
-        flWheel.setPower(0);
-        blWheel.setPower(0);
+    public void update() {
+        if (pinpoint != null) {
+            pinpoint.update();
+        }
+    }
+
+    public double getTargetX() {
+        return targetX;
+    }
+
+    public void setTargetX(double targetX) {
+        this.targetX = targetX;
+    }
+
+    public double getTargetY() {
+        return targetY;
+    }
+
+    public void setTargetY(double targetY) {
+        this.targetY = targetY;
+    }
+
+    public double getTargetHeading() {
+        return targetHeading;
+    }
+
+    public void setTargetHeading(double targetHeading) {
+        this.targetHeading = targetHeading;
+    }
+
+    public void HoldPosition(boolean wasHolding){
+        if (!wasHolding) {
+            targetX = pinpoint.getPosX(DistanceUnit.INCH);
+            targetY = pinpoint.getPosY(DistanceUnit.INCH);
+            targetHeading = pinpoint.getHeading(AngleUnit.RADIANS);
+        }
+
+        double currentX = pinpoint.getPosX(DistanceUnit.INCH);
+        double currentY = pinpoint.getPosY(DistanceUnit.INCH);
+        double currentHeading = pinpoint.getHeading(AngleUnit.RADIANS);
+
+        double errorX = targetX - currentX;
+        double errorY = targetY - currentY;
+        double errorHeading = targetHeading - currentHeading;
+
+        while (errorHeading > Math.PI) errorHeading -= 2 * Math.PI;
+        while (errorHeading < -Math.PI) errorHeading += 2 * Math.PI;
+
+        double fx = errorY * P_TRANSLATION;
+        double fy = -errorX * P_TRANSLATION;
+        double turn = errorHeading * P_HEADING;
+
+        double rotX = fx * Math.cos(currentHeading) + fy * Math.sin(currentHeading);
+        double rotY = -fx * Math.sin(currentHeading) + fy * Math.cos(currentHeading);
+
+        double lfPower = rotY + rotX + turn;
+        double lrPower = rotY - rotX + turn;
+        double rfPower = rotY - rotX - turn;
+        double rrPower = rotY + rotX - turn;
+
+        double max = Math.max(Math.max(Math.abs(lfPower), Math.abs(lrPower)),
+                Math.max(Math.abs(rfPower), Math.abs(rrPower)));
+        if (max > 1.0) {
+            lfPower /= max;
+            lrPower /= max;
+            rfPower /= max;
+            rrPower /= max;
+        }
+
+        flWheel.setPower(lfPower);
+        blWheel.setPower(lrPower);
+        frWheel.setPower(rfPower);
+        brWheel.setPower(rrPower);
+    }
+
+    public void SetWayPoint(){
+        waypointX = pinpoint.getPosX(DistanceUnit.INCH);
+        waypointY = pinpoint.getPosY(DistanceUnit.INCH);
+        waypointHeading = pinpoint.getHeading(AngleUnit.RADIANS);
+    }
+
+    public void GoToWayPoint(){
+        targetX = waypointX;
+        targetY = waypointY;
+        targetHeading = waypointHeading;
+
+        double currentX = pinpoint.getPosX(DistanceUnit.INCH);
+        double currentY = pinpoint.getPosY(DistanceUnit.INCH);
+        double currentHeading = pinpoint.getHeading(AngleUnit.RADIANS);
+
+        double errorX = targetX - currentX;
+        double errorY = targetY - currentY;
+        double errorHeading = targetHeading - currentHeading;
+
+        while (errorHeading > Math.PI) errorHeading -= 2 * Math.PI;
+        while (errorHeading < -Math.PI) errorHeading += 2 * Math.PI;
+
+        double fx = errorY * P_TRANSLATION;
+        double fy = -errorX * P_TRANSLATION;
+        double turn = errorHeading * P_HEADING;
+
+        double rotX = fx * Math.cos(currentHeading) + fy * Math.sin(currentHeading);
+        double rotY = -fx * Math.sin(currentHeading) + fy * Math.cos(currentHeading);
+
+        double lfPower = rotY + rotX + turn;
+        double lrPower = rotY - rotX + turn;
+        double rfPower = rotY - rotX - turn;
+        double rrPower = rotY + rotX - turn;
+
+        double max = Math.max(Math.max(Math.abs(lfPower), Math.abs(lrPower)),
+                Math.max(Math.abs(rfPower), Math.abs(rrPower)));
+        if (max > 1.0) {
+            lfPower /= max;
+            lrPower /= max;
+            rfPower /= max;
+            rrPower /= max;
+        }
+
+        flWheel.setPower(lfPower);
+        blWheel.setPower(lrPower);
+        frWheel.setPower(rfPower);
+        brWheel.setPower(rrPower);
     }
 }
