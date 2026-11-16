@@ -30,6 +30,7 @@ public class TestStrafe extends LinearOpMode {
                 .add(new EditablePose2D(0, -10, 0, DistanceUnit.INCH))
                 .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
                 .build();
+        spline.setTelemetry(t);
 
         robot = new Robot(hardwareMap);
         robot.getDrivetrain().startOdometry();
@@ -46,10 +47,9 @@ public class TestStrafe extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
-            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
-
+            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
             print(moveArray);
-
+            t.update();
             spline.clearLog();
             spline.clearSegmentLog();
 
@@ -65,20 +65,24 @@ public class TestStrafe extends LinearOpMode {
         t.addData(", h: ", robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
         t.addLine("};");
 
-        t.addLine("Spline: ");
-        t.addLine(spline.print());
-        t.addLine("Follow: ");
-        t.addLine(stringFollowPrint(moveArray));
+        t.addData("Power: {x: ", moveArray[0]);
+        t.addData(", yp: ", -moveArray[1]);
+        t.addData(", hp: ", moveArray[2]);
+        t.addLine("};");
 
-        t.addData("Done", spline.done());
-        t.addData("Current Segment", spline.getCurrentSegment());
-        t.addLine();
-
-        t.addLine("Spline Log:");
-        t.addLine(spline.getLog());
-        t.addLine("Segment Log: ");
-        t.addLine(spline.getSegmentLog());
-        t.update();
+//        t.addLine("Spline: ");
+//        t.addLine(spline.print());
+//        t.addLine("Follow: ");
+//        t.addLine(stringFollowPrint(moveArray));
+//
+//        t.addData("Done", spline.done());
+//        t.addData("Current Segment", spline.getCurrentSegment());
+//        t.addLine();
+//
+//        t.addLine("Spline Log:");
+//        t.addLine(spline.getLog());
+//        t.addLine("Segment Log: ");
+//        t.addLine(spline.getSegmentLog());
     }
 
     public String stringFollowPrint(double[] follow) {

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 
 import org.ejml.data.Matrix;
 import org.ejml.interfaces.decomposition.EigenDecomposition;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.ejml.simple.SimpleMatrix;
@@ -15,6 +16,7 @@ public class SplineSegment {
     private boolean continuousRotation;
     private boolean continuousSpeed;
     private String log;
+    private Telemetry t;
 
     // ----- Constructor ---- //
 
@@ -321,24 +323,52 @@ public class SplineSegment {
         return Math.atan2(getSlopeX(t), getSlopeY(t));
     }
 
+    public void setTelemetry(Telemetry telemetry) {
+        t = telemetry;
+    }
+
     public String getLog() {
         return log;
     }
 
-    private void log(String msg) { log += msg;}
+    private void log(String msg) {
+        if(t != null) {
+            t.addData(msg, "");
+        } else {
+            log += msg;
+        }
+    }
 
-    private void logNewLine(String msg) { log += msg + "\n"; }
+    private void logNewLine(String msg) {
+        if(t != null) {
+            t.addLine(msg);
+        } else {
+            log += msg + "\n";
+        }
+    }
 
     private <T> void log(String msg, T val) {
-        log += msg + val.toString();
+        if(t != null) {
+            t.addData(msg, val);
+        } else {
+            log += msg + val.toString();
+        }
     }
 
     private <T> void logNewLine(String msg, T val) {
-        log += msg + val.toString() + "\n";
+        if(t != null) {
+            t.addData(msg, val);
+        } else {
+            log += msg + val.toString() + "\n";
+        }
     }
 
     public void lineBreak() {
-        log += "\n";
+        if (t != null) {
+            t.addLine();
+        } else {
+            log += "\n";
+        }
     }
 
     public void clearLog() {

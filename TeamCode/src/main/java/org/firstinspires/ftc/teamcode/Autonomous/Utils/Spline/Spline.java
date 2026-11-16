@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autonomous.Utils.Spline;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.PIDController;
@@ -16,6 +17,7 @@ public class Spline {
     private int currentSegment = 0;
     private int numPoints;
     private String log;
+    private Telemetry t;
 
     public static double KCurvature = 0.99;
     public static double FKP = 1/20d;
@@ -292,9 +294,10 @@ public class Spline {
 
         double goalAngle = segments.get(currentSegment).getStartPoint(false).getH() +
                 (segments.get(currentSegment).getEndPoint(false).getH() - segments.get(currentSegment).getStartPoint(false).getH()) * correspondingPoint[0];
-        double headingError = AngleUnit.normalizeRadians(goalAngle - heading);
+        double headingError = AngleUnit.normalizeRadians(0 - heading);
 //        if (headingError > Math.PI) {headingError -= 2 * Math.PI;}
         //double angleError = AngleUnit.normalizeRadians(goalAngle - headingError);
+        t.addData("   Heading Error", headingError);
         double rotationForce = angleController.calculate(headingError, 0, (double) System.nanoTime() / 1E9 - startTime);//(headingError) / (Math.PI * 2 / 3);
         if (netMagnitude < 1e-12) {return new double[]{0.0, 0.0, rotationForce};}
 
@@ -358,24 +361,55 @@ public class Spline {
 
     public boolean done() {return currentSegment >= segments.size();}
 
+    public void setTelemetry(Telemetry telemetry) {
+        t = telemetry;
+        for(SplineSegment seg: segments) {
+            seg.setTelemetry(t);
+        }
+    }
+
     public String getLog() {
         return log;
     }
 
-    private void log(String msg) { log += msg;}
+    private void log(String msg) {
+        if(t != null) {
+            t.addData(msg, "");
+        } else {
+            log += msg;
+        }
+    }
 
-    private void logNewLine(String msg) { log += msg + "\n"; }
+    private void logNewLine(String msg) {
+        if(t != null) {
+            t.addLine(msg);
+        } else {
+            log += msg + "\n";
+        }
+    }
 
     private <T> void log(String msg, T val) {
-        log += msg + val.toString();
+        if(t != null) {
+            t.addData(msg, val);
+        } else {
+            log += msg + val.toString();
+        }
     }
 
     private <T> void logNewLine(String msg, T val) {
-        log += msg + val.toString() + "\n";
+        if(t != null) {
+            t.addData(msg, val);
+        } else {
+            log += msg + val.toString() + "\n";
+        }
     }
 
     public void lineBreak() {
-        log += "\n";
+        if(t != null) {
+            t.addLine();
+        } else {
+            log += "\n";
+        }
     }
 
     public void clearLog() {
