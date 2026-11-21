@@ -102,7 +102,6 @@ public class PIDController {
 
         return kf + kp * pError + kd * dError + ki * iError;
     }
-
     /**
      * @param currPos encoderTicks
      * @param goal encoder ticks
