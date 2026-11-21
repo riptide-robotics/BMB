@@ -85,7 +85,7 @@ public class SplineSegment {
             }
         }
 
-        while (degree > 0 && Math.abs(coefficients[degree]) < 1e-9) {
+        while (degree > 0 && Math.abs(coefficients[degree]) < 1e-6) {
             degree--;
         }
 
@@ -140,7 +140,7 @@ public class SplineSegment {
         for (int i = 0; i < C.numRows(); i++) {
             Complex_F64 eigenvalue = eig.getEigenvalue(i);
 
-            if (eigenvalue.isReal()) {
+            if (Math.abs(eigenvalue.getImaginary()) < 1e-7) {
                 double temp = eigenvalue.getReal();
                 if (temp <= 0 || temp >= 1) {continue;}
                 double pointX = getX(temp);
@@ -195,7 +195,7 @@ public class SplineSegment {
         logNewLine("   u: ", t);
         lineBreak();
 
-        return new double[]{1-t, closestPoint[0], closestPoint[1], closestDist};
+        return new double[]{t, closestPoint[0], closestPoint[1], closestDist};
     }
 
     public double getCurvature(double t) {

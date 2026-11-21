@@ -27,11 +27,11 @@ public class Spline {
     public static double CKI = 0.015;
     public static double CKD = 0.0005;
     public static double AKP = 0.07;
-    public static double AKI = 0.725;
-    public static double AKD = 0.00005;
-    private PIDController forwardController = new PIDController(FKP, FKI, FKD, true);
-    private PIDController crossTrackController = new PIDController(CKP, CKI, CKD, true);
-    private PIDController angleController = new PIDController(AKP, AKI, AKD, true);
+    public static double AKI = 0.005;//0.4;//0.725;
+    public static double AKD = 0.0001;
+    private final PIDController forwardController = new PIDController(FKP, FKI, FKD, true);
+    private final PIDController crossTrackController = new PIDController(CKP, CKI, CKD, true);
+    private final PIDController angleController = new PIDController(AKP, AKI, AKD, true);
     private double startTime = 0;
 
     public Spline(SplineBuilder s) {
@@ -218,8 +218,8 @@ public class Spline {
         // get corresponding point
         double[] correspondingPoint = segments.get(currentSegment).getCorrespondingPoint(pos);
 
-        log("   point: {", correspondingPoint[1]);
-        log(", ", correspondingPoint[2]);
+        log("   point: {cx", correspondingPoint[1]);
+        log(", cy", correspondingPoint[2]);
         logNewLine("}");
 
         boolean pastSeg = pastSegment(
@@ -236,6 +236,8 @@ public class Spline {
         if(pastSeg) {
             currentSegment++;
         }
+
+        logNewLine("   currentSegment: ", currentSegment);
 
         if(done()) {
             logNewLine("   done.");
@@ -298,7 +300,7 @@ public class Spline {
 //        if (headingError > Math.PI) {headingError -= 2 * Math.PI;}
         //double angleError = AngleUnit.normalizeRadians(goalAngle - headingError);
         t.addData("   Heading Error", headingError);
-        double rotationForce = angleController.calculate(headingError, 0, (double) System.nanoTime() / 1E9 - startTime);//(headingError) / (Math.PI * 2 / 3);
+        double rotationForce = Math.clamp(angleController.calculate(Math.toDegrees(headingError), 0, (double) System.nanoTime() / 1E9 - startTime), -1, 1);//(headingError) / (Math.PI * 2 / 3);
         if (netMagnitude < 1e-12) {return new double[]{0.0, 0.0, rotationForce};}
 
         log("   Net Force: {", netForce[0] / netMagnitude);
@@ -332,16 +334,16 @@ public class Spline {
         double dx = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - pos.getX(DistanceUnit.INCH);
         double dy = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - pos.getY(DistanceUnit.INCH);
 
-//        if (Math.abs((perpendicular - Math.PI / 2) % (Math.PI)) < 1e-12) {
-//            log("   Vertical Line: ");
-//            double directionSpline = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getX(DistanceUnit.INCH);
-//            if(directionSpline >= 0) {
-//                logNewLine("stay right ", dx <= 0);
-//                return dx <= 0;
-//            }
-//            logNewLine("stay left ", dx >= 0);
-//            return dx >= 0;
-//        }
+        if (Math.abs((perpendicular - Math.PI / 2) % (Math.PI)) < 1e-8) {
+            log("   Vertical Line: ");
+            double directionSpline = segments.get(currentSegment).getEndPoint(false).getX(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getX(DistanceUnit.INCH);
+            if(directionSpline >= 0) {
+                logNewLine("stay right ", dx >= 0);
+                return dx >= 0;
+            }
+            logNewLine("stay left ", dx <= 0);
+            return dx <= 0;
+        }
 
         log("      Dist Endpt: {", dx);
         log(", ", dy);
@@ -350,7 +352,7 @@ public class Spline {
         double determinant = Math.cos(perpendicular) * dy - Math.sin(perpendicular) * dx; // cross product to get if point above or below line
         logNewLine("      Determinant: ", determinant);
 
-        return determinant >= 0;
+        return determinant <= 0;
 //        double directionSpline = segments.get(currentSegment).getEndPoint(false).getY(DistanceUnit.INCH) - segments.get(currentSegment).getStartPoint(false).getY(DistanceUnit.INCH);
 //
 //        logNewLine("      Determinant: ", determinant);
