@@ -22,8 +22,8 @@ public class BatteryVoltageOpModeTest extends SequencedOpMode {
 
         sequencer.addSequence(new FullLoopSequence(a -> {
             double voltage = sensor.getVoltage();
-            telemetry.addData("Voltage", voltage);
-            if (voltage < 11) telemetry.addData("WARNING","LOW VOLTAGE");
+            seqtele.addData("Voltage", voltage);
+            if (voltage < 11) seqtele.addData("WARNING","LOW VOLTAGE");
         }));
 
 

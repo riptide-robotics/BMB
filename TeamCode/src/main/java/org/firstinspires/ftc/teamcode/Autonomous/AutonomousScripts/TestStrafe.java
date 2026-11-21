@@ -20,18 +20,20 @@ public class TestStrafe extends LinearOpMode {
     public Robot robot;
     private Spline spline;
     public static double slowdown;
+
     Telemetry t = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
     @Override
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(10, 0, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(0, 0, 0, DistanceUnit.INCH)))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(0, -10, 0, DistanceUnit.INCH))
+                .add(new EditablePose2D(0, 0, 0, DistanceUnit.INCH), 0, 1)
                 .build();
+        spline.setTelemetry(t);
 
         robot = new Robot(hardwareMap);
-
+        robot.getDrivetrain().startOdometry();
         slowdown = 0.5;
 
         t.addData("Robot status", "succesfully initiated");
@@ -45,40 +47,42 @@ public class TestStrafe extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
-            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos());
-
-            t.addData("Spline: ", spline.print());
-            t.addData("Follow: \n", stringFollowPrint(moveArray));
-            t.addData("Done", spline.done());
-            t.addData("Current Segment: ", spline.getCurrentSegment());
-            t.addData("Spline Log:\n", spline.getLog());
-            t.addData("\nSegment Log:\n", spline.getSegmentLog());
+            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
+            print(moveArray);
             t.update();
             spline.clearLog();
             spline.clearSegmentLog();
 
-            fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2]);
+            robot.getDrivetrain().fieldCentricDrive(moveArray[0], -moveArray[1], moveArray[2], slowdown);
         }
     }
 
-    private void fieldCentricDrive(double y, double x, double rx) {
-        double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
+    public void print(double[] moveArray) {
+        EditablePose2D pos = robot.getDrivetrain().getCurrPos();
 
-        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
-        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+        t.addData("Robot Pos: {x: ", pos.getX(DistanceUnit.INCH));
+        t.addData(", y: ", pos.getY(DistanceUnit.INCH));
+        t.addData(", h: ", robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
+        t.addLine("};");
 
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
-        double flWheelPower = (rotY + rotX + rx) / denominator;
-        double brWheelPower = (rotY + rotX - rx) / denominator;
-        double blWheelPower = (rotY - rotX + rx) / denominator;
+        t.addData("Power: {x: ", moveArray[0]);
+        t.addData(", yp: ", -moveArray[1]);
+        t.addData(", hp: ", moveArray[2]);
+        t.addLine("};");
 
-        robot.getDrivetrain().setWheelPowers(
-                flWheelPower * slowdown,
-                frWheelPower * slowdown,
-                brWheelPower * slowdown,
-                blWheelPower * slowdown
-        );
+//        t.addLine("Spline: ");
+//        t.addLine(spline.print());
+//        t.addLine("Follow: ");
+//        t.addLine(stringFollowPrint(moveArray));
+//
+//        t.addData("Done", spline.done());
+//        t.addData("Current Segment", spline.getCurrentSegment());
+//        t.addLine();
+//
+//        t.addLine("Spline Log:");
+//        t.addLine(spline.getLog());
+//        t.addLine("Segment Log: ");
+//        t.addLine(spline.getSegmentLog());
     }
 
     public String stringFollowPrint(double[] follow) {

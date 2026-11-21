@@ -10,7 +10,7 @@ public class RepeatedSequenceTest extends SequencedOpMode {
 
 
     public RepeatedSequence sequence = new RepeatedSequence((a) -> {
-    telemetry.addData("Time",System.currentTimeMillis());
+    seqtele.addData("Time",System.currentTimeMillis());
     },5000,1000);
 
     @Override

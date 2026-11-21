@@ -1,26 +1,22 @@
 package org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.CommonTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.DataWatcherSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.FullLoopSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.RepeatedSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Zones;
 
 import java.util.List;
 
 @TeleOp(name = "ZoneOpModeTest", group = "Sequencer Tests")
 public class ZoneOpModeTest extends SequencedOpMode {
 
-    DcMotor drive1 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive2 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive3 = hardwareMap.dcMotor.get("Drive1");
-    DcMotor drive4 = hardwareMap.dcMotor.get("Drive1");
 
 
-    DataWatcherSequence dws = new DataWatcherSequence<>(
-            () -> robot.getDrivetrain().getCurrPos(),
+    DataWatcherSequence<List<Zones>> dws = new DataWatcherSequence<>(
+            () -> Zones.getRobotZones(robot),
             List.class
     );
 
@@ -29,20 +25,21 @@ public class ZoneOpModeTest extends SequencedOpMode {
         sequencer.addSequence(dws);
 
         sequencer.addSequence( new RepeatedSequence((accessor) -> {
-            telemetry.addData("Zones", dws.get());
+            seqtele.addData("Zones", dws.get());
         },1000,1000));
 
         sequencer.addSequence(new FullLoopSequence((accessor) -> {
-            telemetry.addData("Second-period Zones", dws.get());
+            seqtele.addData("Second-period Zones", dws.get());
         }));
 
     }
 
     @Override
     public void onLoop() {
-        drive1.setPower(gamepad1.left_stick_y);
-        drive2.setPower(gamepad1.left_stick_y);
-        drive3.setPower(gamepad1.left_stick_x);
-        drive4.setPower(gamepad1.left_stick_x);
+
+    }
+    @Override
+    public boolean useDriverControls() {
+        return true;
     }
 }

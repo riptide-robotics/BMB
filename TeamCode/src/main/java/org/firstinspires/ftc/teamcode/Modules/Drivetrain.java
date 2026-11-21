@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Modules;
 
+import static org.firstinspires.ftc.teamcode.riptideUtil.SLOWDOWN;
 import static java.lang.Thread.sleep;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -13,9 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.firstinspires.ftc.teamcode.Modules.Utils.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.Tuning.Odometry;
 
-import java.nio.file.attribute.FileOwnerAttributeView;
 
 // ----- READY TO TRANSFER ----- //
 
@@ -29,12 +28,11 @@ public class Drivetrain {
 
     // -------- DRIVETRAIN MOTORS -------- //
     private final DcMotor frWheel, flWheel, brWheel, blWheel;
-    private final GoBildaPinpointDriver pinpoint;
+    private GoBildaPinpointDriver pinpoint;
     private final IMU imu;
     private ElapsedTime timer;
-
-    private final OdometryLocalizer robotPos;
-    private final OdometryLocalizer.OdometryMethod localizationMode = OdometryLocalizer.OdometryMethod.PINPOINT; // to be changed
+    private OdometryLocalizer robotPos;
+    private OdometryLocalizer.OdometryMethod localizationMode = OdometryLocalizer.OdometryMethod.PINPOINT; // to be changed
 
     ///////////////////////////////////////////////
     ////                                     /////
@@ -51,10 +49,10 @@ public class Drivetrain {
         brWheel = hardwareMap.dcMotor.get("brWheel");
         blWheel = hardwareMap.dcMotor.get("blWheel");
 
-        blWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        flWheel.setDirection(DcMotorSimple.Direction.REVERSE);
-        frWheel.setDirection(DcMotorSimple.Direction.FORWARD);
-        brWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        blWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        flWheel.setDirection(DcMotorSimple.Direction.FORWARD);
+        frWheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        brWheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         brWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         blWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -70,23 +68,27 @@ public class Drivetrain {
         flWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         blWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        if(localizationMode == OdometryLocalizer.OdometryMethod.PINPOINT){
-            this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
-            pinpoint.setOffsets(0.5, 0, DistanceUnit.INCH);
-            pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-            pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-            robotPos = new OdometryLocalizer(this.pinpoint, 10);
-            pinpoint.resetPosAndIMU();
+        if (localizationMode == OdometryLocalizer.OdometryMethod.PINPOINT){
+            try {
+                this.pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+
+                pinpoint.setOffsets(0, 0, DistanceUnit.INCH);
+                pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+                pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                robotPos = new OdometryLocalizer(this.pinpoint, 10);
+                pinpoint.resetPosAndIMU();
+            } catch (Exception e) {
+                localizationMode = OdometryLocalizer.OdometryMethod.DISABLED;
+            }
         }
         else {
             this.pinpoint = null;
             robotPos = new OdometryLocalizer(blWheel, brWheel, flWheel, 10);
         }
 
-
         imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
 
         imu.resetYaw();
@@ -94,11 +96,54 @@ public class Drivetrain {
 
     }
 
+    // ------- FIELD CENTRIC DRIVE ------ //
+    public void fieldCentricDrive(double y, double x, double rx) {
+        double heading = getRobotHeading(AngleUnit.RADIANS);
+
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
+        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
+        double flWheelPower = (rotY + rotX + rx) / denominator;
+        double brWheelPower = (rotY + rotX - rx) / denominator;
+        double blWheelPower = (rotY - rotX + rx) / denominator;
+
+        setWheelPowers(
+                flWheelPower * SLOWDOWN,
+                frWheelPower * SLOWDOWN,
+                brWheelPower * SLOWDOWN,
+                blWheelPower * SLOWDOWN
+        );
+    }
+
+    public void fieldCentricDrive(double y, double x, double rx, double slowdown) {
+        double heading = getRobotHeading(AngleUnit.RADIANS);
+
+        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
+        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
+        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
+        double flWheelPower = (rotY + rotX + rx) / denominator;
+        double brWheelPower = (rotY + rotX - rx) / denominator;
+        double blWheelPower = (rotY - rotX + rx) / denominator;
+
+        setWheelPowers(
+                flWheelPower * slowdown,
+                frWheelPower * slowdown,
+                brWheelPower * slowdown,
+                blWheelPower * slowdown
+        );
+    }
+
     // ----------- START/STOP ----------- //
 
     public void resetImu() {
         imu.resetYaw();
     }
+
+    public void resetH() {robotPos.reset();}
 
     public double getRobotHeading(AngleUnit unit) {
         return imu.getRobotYawPitchRollAngles().getYaw(unit); // heading of bot in radians

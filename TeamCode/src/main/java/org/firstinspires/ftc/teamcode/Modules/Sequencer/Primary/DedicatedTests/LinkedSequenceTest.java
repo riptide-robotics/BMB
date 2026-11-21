@@ -22,8 +22,8 @@ public class LinkedSequenceTest extends SequencedOpMode {
 
     @Override
     public void onStart() {
-        telemetry.addData("TimedSequence",false);
-        telemetry.addData("LinkedSequence",false);
+        seqtele.addData("TimedSequence",false);
+        seqtele.addData("LinkedSequence",false);
         sequencer.addSequence(timed);
         sequencer.addSequence(linked);
     }

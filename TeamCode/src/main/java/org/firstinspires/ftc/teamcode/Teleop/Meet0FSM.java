@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot;
 
 
 @Config
-@TeleOp(name = "Meet 0 FSM")
+@TeleOp(name = "Meet 0 FSM #1")
 public class Meet0FSM extends LinearOpMode {
 
     Robot robot;

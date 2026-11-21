@@ -9,6 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Sequencer is the primary system for every sequence. There are several types of sequences that this may run,
+ * and more types of sequences can be created as the user desires. <br>
+ * Please note that a sequence can only be added once. If it removes itself from the queue, adding it back may
+ * cause unintended side effects. If you want to run a sequence again, it is recommended to create a lambda
+ * factory for that sequence to be used each time it is added to the sequence.
+ * */
 public class Sequencer {
     public Telemetry tele = null;
 
@@ -19,7 +27,7 @@ public class Sequencer {
         sequence = new ArrayList<>();
     };
 
-    /**Add any sequence to the list, processing as necessary/*/
+    /**Add any sequence to the list, processing as necessary*/
     public void addSequence(SequenceBase base) {
         sequence.add(base);
     }
@@ -34,7 +42,7 @@ public class Sequencer {
 
 
 
-    public Map<SequenceBase, List<SequenceBase>> waiting = new HashMap<SequenceBase, List<SequenceBase>>();
+    public Map<SequenceBase, List<SequenceBase>> waiting = new HashMap<>();
 
     /**
      * @param watched The sequence that the other is waiting on.
@@ -59,30 +67,16 @@ public class Sequencer {
             if (seqbase.end) {
                 sequence.remove(i);
                 i--;
+
+                //so glad we dont have to do garbage collection on java
             }
         }
 
+            if (waiting.isEmpty()) return;
 
-//
-//            int[] remove = new int[sequence.size()];
-//            int  deletedCount = 0;
-//
-//            for (int i = 0; i < sequence.size(); i++) {
-//                SequenceBase seqbase = sequence.get(i);
-//
-//                if (seqbase.canExecute = seqbase.iterationLoop()) seqbase.run();
-//                if (seqbase.end) remove[deletedCount++] = i;
-//            }
-//            remove = Arrays.copyOf(remove, deletedCount + 1);
-//
-//            while(remove.length > 0) {
-//                sequence.remove(remove[remove.length - 1]);
-//                remove = Arrays.copyOf(remove, remove.length - 1);
-//            }
+            boolean modified;
 
-            boolean modified = true;
-
-            while (modified) {
+            do {
                 modified = false;
                 for (Map.Entry<SequenceBase, List<SequenceBase>> pair : waiting.entrySet()) {
                     if (pair.getKey().canExecute) {
@@ -92,7 +86,6 @@ public class Sequencer {
                     }
                 }
                 waiting.entrySet().removeIf(entry -> entry.getValue().isEmpty());
-
-            }
+            } while (modified);
     }
 }

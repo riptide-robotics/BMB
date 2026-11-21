@@ -15,6 +15,8 @@ public class riptideUtil {
     /** General constants */
     // PID tuned voltage
     public static final double TUNED_VOLTAGE = 13.0;
+    // Field Centric Drive
+    public static final double SLOWDOWN = 0.25;
 
     /** Autonomous Constants */
     public static final double POINT_TOLERANCE = 2; // UNDETERMINED

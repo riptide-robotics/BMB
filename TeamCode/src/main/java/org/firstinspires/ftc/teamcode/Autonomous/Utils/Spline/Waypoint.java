@@ -15,12 +15,15 @@ public class Waypoint extends EditablePose2D {
     private double goalSpeed; // from 0 to 1
     private double velocityVectorX; //the velocity vector
     private double velocityVectorY;
+    private boolean defined = false;
 
     public Waypoint() {
         super(0, 0, Math.toRadians(90), DistanceUnit.CM);
-        velocityVectorX = 0;
-        velocityVectorY = 0;
-        goalSpeed = -1;
+        this.velocityVectorX = 0;
+        this.velocityVectorY = 0;
+        this.goalSpeed = -1;
+
+        this.defined = false;
     }
 
 //    public Waypoint(double x, double y, double h) {
@@ -39,23 +42,47 @@ public class Waypoint extends EditablePose2D {
 
     public Waypoint(EditablePose2D pos) {
         super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
-        velocityVectorX = 0;
-        velocityVectorY = 0;
+        this.velocityVectorX = 0;
+        this.velocityVectorY = 0;
         this.goalSpeed = -1;
+
+        this.defined = false;
+    }
+
+    public Waypoint(EditablePose2D pos, double velocityX, double velocityY) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
+        this.goalSpeed = -1;
+
+        this.defined = true;
     }
 
     public Waypoint(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed) {
         super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), pos.getDistanceUnit());
-        velocityVectorX = velocityX;
-        velocityVectorY = velocityY;
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
         this.goalSpeed = goalSpeed;
+
+        this.defined = true;
+    }
+
+    public Waypoint(EditablePose2D pos, double velocityX, double velocityY, double goalSpeed, DistanceUnit units) {
+        super(pos.getX(pos.getDistanceUnit()), pos.getY(pos.getDistanceUnit()), pos.getH(), units);
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
+        this.goalSpeed = goalSpeed;
+
+        this.defined = true;
     }
 
     public Waypoint(double x, double y, double h, double velocityX, double velocityY, double goalSpeed) {
         super(x, y, Math.toRadians(h), DistanceUnit.CM);
-        velocityVectorX = velocityX;
-        velocityVectorY = velocityY;
+        this.velocityVectorX = velocityX;
+        this.velocityVectorY = velocityY;
         this.goalSpeed = goalSpeed;
+
+        this.defined = true;
     }
 
     public Waypoint(double x, double y, double h, double velocityX, double velocityY, double goalSpeed, DistanceUnit units) {
@@ -77,6 +104,8 @@ public class Waypoint extends EditablePose2D {
         this.goalSpeed = goalSpeed;
         velocityVectorX = velocityX;
         velocityVectorY = velocityY;
+
+        this.defined = true;
     }
 
     public double getGoalSpeed() {
@@ -93,6 +122,7 @@ public class Waypoint extends EditablePose2D {
 
     public void setVelocityVectorX(double velocityVectorX) {
         this.velocityVectorX = velocityVectorX;
+        this.defined = true;
     }
 
     public double getVelocityVectorY() {
@@ -100,16 +130,19 @@ public class Waypoint extends EditablePose2D {
     }
 
     public double getAngle() {
-        return Math.atan2(velocityVectorX, velocityVectorY);
+        return Math.atan2(velocityVectorY, velocityVectorX);
     }
 
     public void setVelocityVectorY(double velocityVectorY) {
         this.velocityVectorY = velocityVectorY;
+        this.defined = true;
     }
 
     public void setVeloctiyVector(double x, double y) {
         this.velocityVectorX = x;
         this.velocityVectorY = y;
+
+        this.defined = true;
     }
 
     public double[] getVelocityVector() {
@@ -117,7 +150,7 @@ public class Waypoint extends EditablePose2D {
     }
 
     public boolean fullyDefined() {
-        return velocityVectorX != 0 || velocityVectorY != 0;
+        return defined || !(velocityVectorX == 0 && velocityVectorY == 0);
     }
 
     @NonNull

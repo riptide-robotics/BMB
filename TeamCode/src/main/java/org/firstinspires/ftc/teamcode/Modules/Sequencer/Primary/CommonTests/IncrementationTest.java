@@ -20,6 +20,6 @@ public class IncrementationTest extends SequencedOpMode {
 
     @Override
     public void onLoop() {
-        telemetry.addData("Increment:",i);
+        seqtele.addData("Increment:",i);
     }
 }

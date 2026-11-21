@@ -31,6 +31,6 @@ public class DataWatcherSequenceTest2 extends SequencedOpMode {
 
     @Override
     public void onLoop() {
-        telemetry.addData("Odometry Pod", dws.get());
+        seqtele.addData("Odometry Pod", dws.get());
     }
 }

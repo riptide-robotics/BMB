@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Modules.Utils.EditablePose2D;
 import org.firstinspires.ftc.teamcode.Robot;
 
 
@@ -21,6 +23,14 @@ public abstract class SequencedOpMode extends LinearOpMode {
 
     public SequencedTelemetry seqtele;
 
+    public DriverControls driverControls;
+
+    public EditablePose2D dest = null;
+
+    EditablePose2D pose = null;
+
+    public DistanceUnit distunit = DistanceUnit.INCH;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -28,6 +38,9 @@ public abstract class SequencedOpMode extends LinearOpMode {
         sequencer = new Sequencer();
         sequencer.tele = seqtele = new SequencedTelemetry(this);
         mtele = new MultipleTelemetry(telemetry);
+        driverControls = new DriverControls(robot, gamepad1);
+
+        robot.getDrivetrain().startOdometry();
 
         onStart();
 
@@ -35,6 +48,24 @@ public abstract class SequencedOpMode extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            if (useDriverControls() && pose == null) { try {
+                pose = robot.getDrivetrain().getCurrPos();
+            } catch (Exception e) {
+                seqtele.addData("Pose could not be initialized", e.getMessage());
+            }}
+
+            else if (!useDriverControls() && pose != null) pose = null;
+
+
+            if (useDriverControls()) {
+                if (dest == null) driverControls.fieldCentricDrive();
+                else driverControls.driveToPos(dest);
+                if (pose != null)
+                    seqtele.addData("Pose", "X:" + Math.round(pose.getX(distunit)*100)/100 + ", Y:" + Math.round(pose.getY(distunit)*100)/100 +  ", Z:" + Math.round(pose.getH()*100)/100);
+                else seqtele.addData("Pose", "null");
+            }
+            seqtele.addData("drivercontrols", driverControls != null);
 
             sequencer.iterate();
             onLoop();
@@ -48,4 +79,19 @@ public abstract class SequencedOpMode extends LinearOpMode {
     public abstract void onStart();
     public abstract void onLoop();
     public void onStop() {};
+
+    public boolean useDriverControls() {
+        return false;
+    }
+
+    public void setDestination(EditablePose2D pose2D) {
+        dest = pose2D;
+    }
+
+    public EditablePose2D getDestination() {
+        return dest;
+    }
+    public void removeDestination() {
+        dest = null;
+    }
 }

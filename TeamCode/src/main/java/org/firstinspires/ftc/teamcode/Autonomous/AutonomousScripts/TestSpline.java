@@ -27,13 +27,13 @@ public class TestSpline extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         spline = new Spline.SplineBuilder()
-                .add(new Waypoint(new EditablePose2D(5, 0, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(0, 10, 0, DistanceUnit.INCH)))
-                .add(new Waypoint(new EditablePose2D(-5, 0, 0, DistanceUnit.INCH)))
+                .add(new EditablePose2D(5, 0, 0, DistanceUnit.INCH), 0, 1)
+                .add(new EditablePose2D(0, 10, 0, DistanceUnit.INCH))
+                .add(new EditablePose2D(-5, 0, 0, DistanceUnit.INCH), 0, -1)
                 .build();
 
         robot = new Robot(hardwareMap);
-
+        robot.getDrivetrain().startOdometry();
         slowdown = 0.5;
 
         t.addData("Robot status", "succesfully initiated");
@@ -47,40 +47,39 @@ public class TestSpline extends LinearOpMode {
         t.update();
 
         while(opModeIsActive()) {
-            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos());
+            double[] moveArray = spline.follow(robot.getDrivetrain().getCurrPos(), robot.getDrivetrain().getRobotHeading(AngleUnit.DEGREES));
 
-            t.addData("Spline: \n", spline.print());
-            t.addData("Follow: \n", stringFollowPrint(moveArray));
-            t.addData("Done", spline.done());
-            t.addData("Current Segment: ", spline.getCurrentSegment());
-            t.addData("Spline Log:\n", spline.getLog());
-            t.addData("\nSegment Log:\n", spline.getSegmentLog());
-            t.update();
+            print(moveArray);
+
             spline.clearLog();
             spline.clearSegmentLog();
 
-            fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2]);
+            robot.getDrivetrain().fieldCentricDrive(moveArray[0], moveArray[1], moveArray[2], slowdown);
         }
     }
 
-    private void fieldCentricDrive(double y, double x, double rx) {
-        double heading = robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS);
+    public void print(double[] moveArray) {
+        EditablePose2D pos = robot.getDrivetrain().getCurrPos();
 
-        double rotX = x * Math.cos(-heading) - y * Math.sin(-heading); // goal vector relative to robot
-        double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+        t.addData("Robot Pos: {x: ", pos.getX(DistanceUnit.INCH));
+        t.addData(", y: ", pos.getY(DistanceUnit.INCH));
+        t.addData(", h: ", robot.getDrivetrain().getRobotHeading(AngleUnit.RADIANS));
+        t.addLine("};");
 
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-        double frWheelPower = (rotY - rotX - rx) / denominator; // wheel powers
-        double flWheelPower = (rotY + rotX + rx) / denominator;
-        double brWheelPower = (rotY + rotX - rx) / denominator;
-        double blWheelPower = (rotY - rotX + rx) / denominator;
+        t.addLine("Spline: ");
+        t.addLine(spline.print());
+        t.addLine("Follow: ");
+        t.addLine(stringFollowPrint(moveArray));
 
-        robot.getDrivetrain().setWheelPowers(
-                flWheelPower * slowdown,
-                frWheelPower * slowdown,
-                brWheelPower * slowdown,
-                blWheelPower * slowdown
-        );
+        t.addData("Done", spline.done());
+        t.addData("Current Segment", spline.getCurrentSegment());
+        t.addLine();
+
+        t.addLine("Spline Log:");
+        t.addLine(spline.getLog());
+        t.addLine("Segment Log: ");
+        t.addLine(spline.getSegmentLog());
+        t.update();
     }
 
     public String stringFollowPrint(double[] follow) {

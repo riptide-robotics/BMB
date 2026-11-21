@@ -5,16 +5,22 @@ repositories {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'org.firstinspires.ftc:Inspection:12.0.0'
     implementation 'org.firstinspires.ftc:Blocks:12.0.0'
+    //noinspection Aligned16KB
     implementation 'org.firstinspires.ftc:RobotCore:12.0.0'
     implementation 'org.firstinspires.ftc:RobotServer:12.0.0'
     implementation 'org.firstinspires.ftc:OnBotJava:12.0.0'
     implementation 'org.firstinspires.ftc:Hardware:12.0.0'
     implementation 'org.firstinspires.ftc:FtcCommon:12.0.0'
     implementation 'org.firstinspires.ftc:Vision:12.0.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    //implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'com.acmerobotics.dashboard:dashboard:0.6.0'
-    implementation 'org.ejml:ejml-simple:0.46.1'
+    //implementation 'org.ejml:ejml-simple:0.45.1'
+    implementation 'org.ejml:ejml-simple:0.38'
 }
 
+configurations.configureEach {
+    exclude group: 'org.jspecify', module: 'jspecify'
+}
