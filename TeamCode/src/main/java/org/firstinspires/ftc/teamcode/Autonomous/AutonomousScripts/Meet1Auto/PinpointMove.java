@@ -22,6 +22,7 @@ public class PinpointMove {
     public static double P_HEADING = 2.0;
 
     Telemetry tele;
+    private double errorX, errorY, errorHeading;
 
     public PinpointMove() {};
     public PinpointMove(HardwareMap hardwareMap, @Nullable Telemetry tele) {
@@ -51,9 +52,9 @@ public class PinpointMove {
         double currentY = pinpoint.getPosY(DistanceUnit.INCH);
         double currentHeading = pinpoint.getHeading(AngleUnit.RADIANS);
 
-        double errorX = targetX - currentX;
-        double errorY = targetY - currentY;
-        double errorHeading = targetHeading - currentHeading;
+        errorX = targetX - currentX;
+        errorY = targetY - currentY;
+        errorHeading = targetHeading - currentHeading;
 
         while (errorHeading > Math.PI) errorHeading -= 2 * Math.PI;
         while (errorHeading < -Math.PI) errorHeading += 2 * Math.PI;
@@ -88,6 +89,14 @@ public class PinpointMove {
             tele.addData("Mode", "GOING TO POSITION");
             tele.addData("Target (X, Y)", "%.1f, %.1f", targetX, targetY);
         }
+    }
+
+    public double getDistanceError() {
+        return Math.sqrt(errorX * errorX + errorY * errorY);
+    }
+
+    public double getHeadingError() {
+        return errorHeading;
     }
 
 }

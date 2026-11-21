@@ -3,47 +3,65 @@ package org.firstinspires.ftc.teamcode.UnitTests;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Autonomous.AutonomousScripts.Meet1Auto.PinpointMove;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.SequenceBase;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.DataWatcherSequence;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.FullLoopSequence;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.ObstructiveSequence;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.Primary.Sequences.RepeatedSequence;
 import org.firstinspires.ftc.teamcode.Modules.Sequencer.SequencedOpMode;
+import org.firstinspires.ftc.teamcode.Modules.Sequencer.SequencedTelemetry;
 
-public class UnitTest extends SequencedOpMode {
-    // https://docs.google.com/presentation/d/15hiayy1XQD8Y_2gFYvPoHPRe8F1i1ZBmPSsw_-aaEP4/edit?slide=id.h2bb3d5c7be0bd53a_3_29#slide=id.h2bb3d5c7be0bd53a_3_29
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
-    PinpointMove move = new PinpointMove();
-    private long lastTime = Long.MIN_VALUE;
+public abstract class UnitTest extends SequencedOpMode {
 
-    int inst = 0;
+    int testID = -1;
+    public Map<Integer, FullLoopSequence> tests;
+    public Map<Integer, DataWatcherSequence<String>> conditions;
+    FullLoopSequence activeTest;
+    DataWatcherSequence<String> activeCondition = null;
+    public Map<Integer, String> results;
 
-    Double[][] points = new Double[][] {{1.0,4.0,1.5},{4.0,2.0,1.2},{6.0,2.0,0.6},{7.0,2.0,2.0},{1.0,6.0,0.2}};
+    long testTime = 0;
 
-    double tarX, tarY, tarH;
-
-    @Override
-    public void onStart() {
-        move.initalize(hardwareMap,telemetry);
-    }
+    boolean finished = false;
 
     @Override
     public void onLoop() {
+        seqtele.addData("Results:", results.toString());
 
-        if (System.nanoTime() - 5000 > lastTime) {
-            tarX = points[inst][0];
-            tarY = points[inst][1];
-            tarH = points[inst][2];
-
-            inst++;
-            lastTime = System.nanoTime();
+        if (activeCondition != null && activeCondition.get() != null) {
+            results.put(testID, activeCondition.get());
+            sequencer.sequence.clear();
         }
 
-        move.loop(gamepad1.left_bumper, tarX,tarY,tarH);
+        if (sequencer.sequence.isEmpty()) {
+            testID++;
+            testTime = System.nanoTime();
 
-        if (gamepad1.yWasPressed()) tarY++;
-        if (gamepad1.aWasPressed()) tarY--;
-        if (gamepad1.xWasPressed()) tarX--;
-        if (gamepad1.bWasPressed()) tarX++;
+            finished = true;
+            if (tests.size() > testID) { finished = false; activeTest = tests.get(testID); }
+            if (conditions.size() > testID) { finished = false; activeCondition = conditions.get(testID); }
 
-        if (gamepad1.leftTriggerWasPressed()) tarH -= Math.PI / 8;
-        if (gamepad1.rightTriggerWasPressed()) tarH += Math.PI / 8;
-
-
+            if (!finished)
+                sequencer.addSequences(activeTest, activeCondition);
+        }
     }
+
+    int testAdded = 0;
+    public void addTest(Runnable run) {
+        tests.put(testAdded++, new FullLoopSequence((a) -> {
+            run.run();
+        }));
+    }
+    int conditionsAdded = 0;
+    public void addCondition(Supplier<String> run) {
+        conditions.put(conditionsAdded++, new DataWatcherSequence<>(run::get, String.class));
+    }
+    public long getTestTimeMS() {
+        return System.nanoTime() - testTime;
+    }
+
 }
