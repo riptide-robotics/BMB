@@ -17,26 +17,27 @@ public class UnitTestExample extends UnitTest {
     public void onStart() {
         move = new PinpointMove(hardwareMap, seqtele);
 
-       addTest(() -> {
+        add(() -> {
+            move.loop(true,tarX = 1,tarY = 6,tarH = 2);
+        }, () -> {
+            if (move.getDistanceError() < 1 && move.getHeadingError() < 1) return true;
+            if (getTestTimeMS() > 3000) return false;
+            return null;
+        }, (value) -> {
+            if (value) return "SUCCESS - position within acceptable error";
+            else return "FAILURE - out of time";
+        });
+
+       add(() -> {
            move.loop(true,tarX = 1,tarY = 6,tarH = 2);
        });
 
-       addTest(() -> {
+       add(() -> {
             move.loop(true,tarX = 6,tarY = -2,tarH = 9);
        });
 
-       addTest(() -> {
+       add(() -> {
             move.loop(true,tarX = -4,tarY = 9,tarH = -1);
        });
-
-       addCondition(() -> {
-            if (testTime > 3000) return "FAIL out of time";
-
-            if (move.getDistanceError() < 1 && move.getHeadingError() < 1) return "SUCCESS on position";
-
-            return null;
-        });
     }
-
-
 }
