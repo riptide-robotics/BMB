@@ -12,14 +12,30 @@ import java.util.ArrayList;
 public class PID2pointAuto {
     private ArrayList <EditablePose2D> points;
     private int pointIndex = 0;
+    private boolean ifDone = false;
+
+    public PID2pointAuto() {
+        points = new ArrayList<EditablePose2D>();
+
+    }
 
     public double[] run(double currentX, double currentY, double currentHeading) {
-        if (pointIndex >= points.size()) return new double[] {0, 0, 0, 0};
-        EditablePose2D pinpoint = points.get(pointIndex);
+        if (pointIndex >= points.size()) {
+            ifDone = true;
+            return new double[] {0, 0, 0, 0};
+        }
 
-        double errorX = pinpoint.getX(DistanceUnit.INCH) - currentX;
-        double errorY = pinpoint.getY(DistanceUnit.INCH) - currentY;
-        double errorHeading = pinpoint.getH() - currentHeading;
+
+        double errorX = points.get(pointIndex).getX(DistanceUnit.INCH) - currentX;
+        double errorY = points.get(pointIndex).getY(DistanceUnit.INCH) - currentY;
+        double errorHeading = points.get(pointIndex).getH() - currentHeading;
+
+        if (Math.hypot(errorX, errorY ) <= 1.5) pointIndex++;
+
+        if (pointIndex >= points.size()) {
+            ifDone = true;
+            return new double[] {0, 0, 0, 0};
+        }
 
         while (errorHeading > Math.PI) errorHeading -= 2 * Math.PI;
         while (errorHeading < -Math.PI) errorHeading += 2 * Math.PI;
@@ -51,6 +67,9 @@ public class PID2pointAuto {
 
     }
 
+    public double addPoint(double x, double y, double h) {points.add(new EditablePose2D(x, y, h, DistanceUnit.INCH));}
+    public double addPose(EditablePose2D pose) {points.add(pose);}
+    // TODO: remove points
     public double getPosX(int index) {
         return points.get(index).getX(DistanceUnit.INCH);
     }
@@ -59,5 +78,8 @@ public class PID2pointAuto {
     }
     public void setPosX(int index, double newVal) {points.get(index).setX(newVal, DistanceUnit.INCH);}
     public void setPosY(int index, double newVal) {points.get(index).setY(newVal, DistanceUnit.INCH);}
+    public boolean isDone() {
+        return ifDone;
+    }
 
 }
